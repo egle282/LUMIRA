@@ -6,6 +6,7 @@ from sqlalchemy.future import select
 
 from backend.database.database import get_db
 from backend.database.models import User
+from backend.database.tenant import set_tenant_context
 from backend.core.config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
@@ -34,4 +35,9 @@ async def get_current_user(
     
     if user is None:
         raise credentials_exception
+        
+    # Enforce RLS for this transaction/session
+    if user.tenant_id:
+        await set_tenant_context(db, user.tenant_id)
+        
     return user

@@ -8,6 +8,20 @@
 ## Executive Summary
 Initial Phase 0 discovery reveals a working project structure with separated frontend (React) and backend (FastAPI) applications. The repository was recently scrubbed of git secrets (like `.env`) and is ready for an open-source security hardening pass. Development and production compose files exist but need security hardening (binding interfaces, auth).
 
+## Phase 1.2: Public Content Review (Artifacts)
+The following files/directories were identified as non-product artifacts and need owner disposition:
+- `.antigravity/`, `obsidian/`, `generate_docs_v3.py`: **KEEP_INTERNAL** (Add to `.gitignore` / avoid tracking).
+- `AI_PROJECT_PACK-integrated-work/`, `APES-26-PROJECT-FACTORY-v3.0.0/`: **REVIEW_WITH_OWNER** (Large generation artifacts, usually not for public OSS repo).
+- `project_dump.py`, `project_dump.txt`, `Roade_map.txt`: **CANDIDATE FOR REMOVAL** (Dumps/legacy files superseded by others).
+- `docPRO/`, `MASTER BUILD PROMPT.md`, `Audit.md`: **REVIEW_WITH_OWNER** (Agent instructions and generated docs; usually removed from clean public repos).
+
+## Phase 1.3 & Phase 3: Application Security & Documentation Reconciled
+- **Tenant Isolation (RLS):** FIXED. Python backend now injects `app.current_tenant` into the session in `deps.py`. `SECURITY_MODEL.md` updated to **VERIFIED**.
+- **Prompt Injection:** Claimed in docs, but inputs flow directly into orchestrator. `SECURITY_MODEL.md` updated to **NOT IMPLEMENTED**.
+- **Financial Webhooks:** Claimed in docs, but no webhook logic exists. `SECURITY_MODEL.md` updated to **NOT APPLICABLE**.
+- **ROADMAP.md & PROJECT_STATUS.md:** Updated to explicitly uncheck missing features (Admin Panel, Advanced Astrology engines, Webhooks).
+- **README.md:** Updated with secure local run instructions and noted Mock status of Muhurta.
+
 ## Inventory of Findings
 
 ### 1. Insecure Docker Compose Port Binding (Development)

@@ -10,21 +10,21 @@ Based on `Roade_map.txt` and dependencies.
 ## Milestone 1: MVP (Telegram + Core Astrology)
 - [ ] **Foundation:** Setup CI/CD, Logging, Database.
 - [ ] **Astrology Core:** Integrate Swiss Ephemeris (Chart, Panchanga, Dasha, Transits).
-- [x] **Identity:** Users, Tenants, Profiles, RLS.
+- [ ] **Identity:** Users, Tenants, Profiles (RLS not enforced in backend).
 - [ ] **AI Layer:** Provider abstraction, prompts, structured output.
 - [x] **AI Astrologer:** Chat context, memory.
-- [x] **Telegram MVP:** Onboarding, Chart, Daily briefing, Muhurta, Chat.
+- [ ] **Telegram MVP:** Onboarding, Chart, Daily briefing, Muhurta, Chat.
 
 ## Milestone 2: V1 (Web + Subscriptions)
-- [x] **Web Frontend:** Dashboard, Chart, Predictions, Muhurta, AI Chat.
-- [x] **Advanced Features:** Memory persistence, Daily Briefing scheduling, Life Areas.
-- [x] **Billing:** Subscriptions, Webhooks, Usage limits.
-- [x] **Admin Panel:** SaaS management, AI Costs, Feature flags.
+- [x] **Web Frontend:** Dashboard, Chart, Predictions, Muhurta (Mock), AI Chat.
+- [ ] **Advanced Features:** Memory persistence, Daily Briefing scheduling, Life Areas.
+- [ ] **Billing:** Subscriptions (partial), Webhooks (missing), Usage limits (missing).
+- [ ] **Admin Panel:** SaaS management, AI Costs, Feature flags.
 
 ## Milestone 3: V2 (Advanced Astrology)
-- [x] **Karma Timeline:** Timeline engine.
-- [x] **Destiny Matrix:** Calculation engine and interpretation.
-- [x] **Life Event Engine:** Probabilistic predictions.
+- [ ] **Karma Timeline:** Timeline engine.
+- [ ] **Destiny Matrix:** Calculation engine and interpretation.
+- [ ] **Life Event Engine:** Probabilistic predictions.
 - [ ] **Knowledge & Evolution Engine:** Pattern recognition, self-improvement.
 
 ## Milestone 4: Production Readiness & CI/CD

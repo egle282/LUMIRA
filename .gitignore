@@ -52,3 +52,14 @@ coverage/
 # Project specific
 project_dump.txt
 project_dump.py
+
+# Internal / AI Agent Artifacts
+.antigravity/
+obsidian/
+docPRO/
+AI_PROJECT_PACK-integrated-work/
+APES-26-PROJECT-FACTORY-v3.0.0/
+Audit.md
+MASTER BUILD PROMPT.md
+Roade_map.txt
+create_tables.py

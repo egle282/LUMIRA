@@ -10,6 +10,8 @@
 ## WHAT IS MISSING
 
 - Real Backend Muhurta calculation endpoint (currently a frontend mock).
+- Admin Panel (missing logic).
+- Financial Webhooks & Idempotency.
 - Production Cloud Deployment.
 - E2E CI/CD pipeline integration.
 
@@ -24,7 +26,7 @@
 
 ## WHAT IS RISKY
 - **AI Hallucinations:** Risk of LLM doing astrological calculations instead of using the deterministic engine.
-- **Multi-tenant Data Leaks:** Strict RLS enforcement is required to prevent data leakage between tenants.
+- **Multi-tenant Data Leaks:** RLS is active, but any new tables must have policies applied to maintain strict isolation.
 - **Timezone/Location Complexity:** Critical for accurate Panchanga and Muhurta calculations.
 
 ## WHAT IS UNKNOWN
