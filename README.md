@@ -15,7 +15,7 @@ LUMIRA — это интеллектуальная платформа ведич
 *   **Backend:** Python, FastAPI, SQLAlchemy, PostgreSQL.
 *   **Astrology:** `pyswisseph` (ведические расчеты).
 *   **AI Integration:** OpenRouter API (Gemini/Llama), LangChain.
-*   **DevOps:** Docker, GitHub Actions (CI/CD), Pytest.
+*   **DevOps:** Docker, Pytest.
 
 ## 🧠 Принципы архитектуры
 
@@ -25,8 +25,7 @@ LUMIRA — это интеллектуальная платформа ведич
 
 *   `/frontend` — Клиентская часть (React SPA)
 *   `/backend` — Серверная часть (FastAPI, AI orchestration, SwissEph engine)
-*   `/docPRO` — Сгенерированная техническая и маркетинговая документация
-*   `.antigravity` — Директория сессий и рабочих протоколов для агентов Antigravity
+*   `/docs` — Техническая документация и результаты аудита
 
 ## 🏁 Локальный запуск (Быстрый старт)
 
@@ -53,6 +52,7 @@ LUMIRA — это интеллектуальная платформа ведич
 ## 🔒 Безопасность и ограничения
 
 - **Development Compose:** Локальный `docker-compose.yml` не предназначен для production. Порты базы данных привязаны только к `127.0.0.1`.
+- **Production Compose:** Используйте `docker-compose.prod.yml`, но обратите внимание, что для production-развертывания потребуется настроить обратный прокси (например, Nginx или Traefik) для обработки HTTPS/TLS сертификатов.
 - **Tenant Isolation:** Механизмы изоляции клиентов (RLS) и биллинг находятся в стадии интеграции. Не используйте текущую версию для открытой SaaS-эксплуатации без доработки.
 
 ---
