@@ -1,0 +1,15 @@
+{
+  "name": "files",
+  "description": "Secure file upload, storage, processing and access control.",
+  "docs": [
+    "FILES.md"
+  ],
+  "rules": [
+    "files"
+  ],
+  "skills": [
+    "files-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}

@@ -1,0 +1,4 @@
+APES-26 Project Factory v3.0.0 smoke test: PASS
+Profile: ai-saas
+Packs: auth,multitenancy,rag,analytics
+Generated project doctor: PASS

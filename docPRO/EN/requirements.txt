@@ -1,0 +1,14 @@
+Aiogram (Telegram)
+FastAPI
+google
+HTTPX
+jose
+OpenAI API
+passlib
+pydantic
+pydantic-settings
+Pytest
+radon
+SQLAlchemy
+structlog
+swisseph

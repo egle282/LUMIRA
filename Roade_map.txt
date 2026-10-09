@@ -1,0 +1,102 @@
+Дорожная карта LUMIRA
+
+Я бы делал её не «по списку функций», а по зависимостям.
+
+| Фаза                      | Что строим                                                         | Результат                    |
+| ------------------------- | ------------------------------------------------------------------ | ---------------------------- |
+| **0. Discovery**          | аудит проекта, AI OS, стек, ограничения                            | утверждённая архитектура     |
+| **1. Foundation**         | repo, config, Docker, CI/CD, DB, logging                           | технический фундамент        |
+| **2. Astrology Core**     | Swiss Ephemeris, chart, Panchanga, Nakshatra, Dasha, Transit       | deterministic engine         |
+| **3. Identity**           | users, tenants, profiles, birth data, RLS                          | безопасная multi-tenant база |
+| **4. AI Layer**           | provider abstraction, Gemini, fallback, prompts, structured output | AI interpretation            |
+| **5. AI Astrologer**      | chat, context, memory, tool calling                                | персональный AI astrologer   |
+| **6. Telegram**           | onboarding, chart, daily briefing, chat, Muhurta                   | рабочий Telegram MVP         |
+| **7. Web**                | dashboard, chart, predictions, Muhurta, AI chat                    | SaaS UI                      |
+| **8. Advanced Astrology** | Karma, Life Areas, Destiny Matrix, Life Events                     | расширенный продукт          |
+| **9. Billing**            | subscriptions, payments, webhooks, usage                           | монетизация                  |
+| **10. Admin**             | users, tenants, AI costs, prompts, feature flags                   | управление SaaS              |
+| **11. QA/Security**       | E2E, RLS, AI evals, load/security testing                          | production candidate         |
+| **12. Production**        | deployment, domain, monitoring, backups, rollback                  | PROD                         |
+| **13. Evolution**         | memory, patterns, lessons, regressions, drift                      | саморазвитие                 |
+
+
+Я бы разделил запуск на три milestone
+
+MVP
+
+User
++
+Birth Data
++
+Natal Chart
++
+Panchanga
++
+Dasha
++
+Basic Transits
++
+Muhurta
++
+AI Astrologer
++
+Telegram
+
+V1
+
+MVP
++
+Web
++
+Memory
++
+Daily Briefing
++
+Life Areas
++
+Subscriptions
++
+Admin
+
+V2
+
+V1
++
+Karma Timeline
++
+Destiny Matrix
++
+Life Event Engine
++
+Advanced Predictions
++
+Knowledge/Evolution Engine
+
+И главное
+
+Я бы не начинал LUMIRA с красивого frontend.
+
+Правильный порядок:
+ASTROLOGY TRUTH
+        ↓
+DOMAIN MODEL
+        ↓
+DATABASE
+        ↓
+API
+        ↓
+AI ORCHESTRATION
+        ↓
+TELEGRAM
+        ↓
+WEB
+        ↓
+BILLING
+        ↓
+ADMIN
+        ↓
+PRODUCTION
+
+Потому что если сначала сделать интерфейс, а потом обнаружить, что Panchanga/Dasha/Muhurta, timezone, location и tenant model спроектированы неправильно, придётся переделывать половину продукта.
+
+Первый запуск этого prompt в Antigravity должен привести не к коду, а к PHASE 0 DISCOVERY → ARCHITECTURE → ROADMAP → DATABASE PLAN → AI PLAN → SECURITY MODEL. После этого система уже может идти по фазам практически автономно.

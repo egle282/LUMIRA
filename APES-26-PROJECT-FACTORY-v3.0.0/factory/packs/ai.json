@@ -1,0 +1,11 @@
+{
+  "name": "ai",
+  "description": "AI provider routing, prompts, structured outputs, tools, guardrails and evaluation.",
+  "docs": [],
+  "rules": [
+    "ai-production"
+  ],
+  "skills": [],
+  "agents": [],
+  "files": {}
+}

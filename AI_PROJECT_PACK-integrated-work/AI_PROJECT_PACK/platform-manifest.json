@@ -1,0 +1,119 @@
+{
+  "version": "1.2.0",
+  "canonical": "source/AGENTS.md",
+  "platforms": {
+    "antigravity-ide": {
+      "paths": [
+        ".agents/rules/",
+        ".agents/workflows/",
+        ".agents/skills/"
+      ],
+      "confidence": "official"
+    },
+    "claude": {
+      "paths": [
+        "CLAUDE.md",
+        ".claude/rules/",
+        ".claude/skills/",
+        ".claude/settings.json"
+      ],
+      "confidence": "official"
+    },
+    "cline": {
+      "paths": [
+        ".clinerules/"
+      ],
+      "confidence": "official"
+    },
+    "kilocode": {
+      "paths": [
+        "kilo.jsonc",
+        ".kilo/rules/",
+        ".kilocode/rules/"
+      ],
+      "confidence": "official-compatible"
+    },
+    "codex": {
+      "paths": [
+        "AGENTS.md"
+      ],
+      "confidence": "official"
+    },
+    "opencode": {
+      "paths": [
+        "AGENTS.md",
+        "opencode.json"
+      ],
+      "confidence": "official"
+    },
+    "continue": {
+      "paths": [
+        ".continue/rules/"
+      ],
+      "confidence": "official"
+    },
+    "vscode": {
+      "paths": [
+        ".vscode/settings.json",
+        ".vscode/extensions.json"
+      ],
+      "confidence": "editor"
+    },
+    "ollama": {
+      "paths": [
+        "AGENTS.md",
+        ".ollama/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "hermes": {
+      "paths": [
+        "AGENTS.md",
+        ".hermes/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "koda": {
+      "paths": [
+        "AGENTS.md",
+        ".koda/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "grok": {
+      "paths": [
+        "AGENTS.md",
+        ".grok/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "qwen": {
+      "paths": [
+        "AGENTS.md",
+        ".qwen/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "kimi-code": {
+      "paths": [
+        "AGENTS.md",
+        ".kimi-code/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "minimax-agent": {
+      "paths": [
+        "AGENTS.md",
+        ".minimax-agent/README.md"
+      ],
+      "confidence": "fallback"
+    },
+    "codegpt": {
+      "paths": [
+        "AGENTS.md",
+        ".codegpt/README.md"
+      ],
+      "confidence": "fallback"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+profiles:
+  saas:
+    required_docs: [PRODUCT, UX, ARCHITECTURE, SECURITY, TESTING, DEPLOYMENT, QUALITY-GATE]
+    skills: [product-discovery, ux-architecture, ui-design-system, architecture, frontend-engineering, backend-engineering, security-review, testing-verification, release-quality-gate]
+  ai-saas:
+    required_docs: [PRODUCT, UX, ARCHITECTURE, AI, EVALUATION, SECURITY, TESTING, DEPLOYMENT, QUALITY-GATE, OBSERVABILITY]
+    skills: [product-discovery, ux-architecture, ui-design-system, architecture, frontend-engineering, backend-engineering, ai-engineering, security-review, testing-verification, release-quality-gate]
+  landing:
+    required_docs: [PRODUCT, UX, TESTING, DEPLOYMENT, QUALITY-GATE]
+    skills: [product-discovery, ux-architecture, ui-design-system, frontend-engineering, testing-verification, release-quality-gate]
+  dashboard:
+    required_docs: [PRODUCT, UX, ARCHITECTURE, SECURITY, TESTING, QUALITY-GATE]
+    skills: [product-discovery, ux-architecture, ui-design-system, architecture, frontend-engineering, backend-engineering, security-review, testing-verification, release-quality-gate]
+  telegram:
+    required_docs: [PRODUCT, ARCHITECTURE, AI, SECURITY, TESTING, DEPLOYMENT, QUALITY-GATE]
+    skills: [product-discovery, architecture, backend-engineering, ai-engineering, security-review, testing-verification, release-quality-gate]
+  api:
+    required_docs: [PRODUCT, ARCHITECTURE, SECURITY, TESTING, DEPLOYMENT, QUALITY-GATE]
+    skills: [product-discovery, architecture, backend-engineering, security-review, testing-verification, release-quality-gate]

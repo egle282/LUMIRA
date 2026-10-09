@@ -1,0 +1,37 @@
+project:
+  name: "CHANGE-ME"
+  slug: "change-me"
+  type: "ai-saas" # saas | ai-saas | dashboard | landing | telegram | api | internal-tool | web-app
+  stage: "mvp" # discovery | prototype | mvp | production
+  owner: "CHANGE-ME"
+  repo: "CHANGE-ME"
+
+product:
+  audience: "CHANGE-ME"
+  problem: "CHANGE-ME"
+  outcome: "CHANGE-ME"
+  business_model: "CHANGE-ME"
+  primary_flow: "CHANGE-ME"
+
+stack:
+  frontend: "CHANGE-ME"
+  backend: "CHANGE-ME"
+  database: "CHANGE-ME"
+  auth: "CHANGE-ME"
+  ai: "CHANGE-ME"
+  deployment: "CHANGE-ME"
+
+policy:
+  accessibility: "WCAG 2.2 AA"
+  browser_verification: true
+  security_review: true
+  ai_evaluation: true
+  performance_review: true
+  seo_review: true
+  observability: true
+  require_plan_for: ["architecture", "database", "auth", "security", "multi-file", "large-refactor", "production-release"]
+
+quality:
+  critical_security_blocks_release: true
+  failing_critical_flow_blocks_release: true
+  fabricated_verification_blocks_release: true

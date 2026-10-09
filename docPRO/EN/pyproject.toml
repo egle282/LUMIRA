@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lumira"
+version = "0.1.0"
+description = "Production-ready application for portfolio presentation and practical use."
+readme = "READMEPro.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Your Name", email = "your@email.com"}
+]
+keywords = ["python", "portfolio", "automation"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "Aiogram (Telegram)",
+    "FastAPI",
+    "google",
+    "HTTPX",
+    "jose",
+    "OpenAI API",
+    "passlib",
+    "pydantic",
+    "pydantic-settings",
+    "Pytest",
+    "radon",
+    "SQLAlchemy",
+    "structlog",
+    "swisseph",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/lumira"
+Repository = "https://github.com/yourusername/lumira"
+Issues = "https://github.com/yourusername/lumira/issues"

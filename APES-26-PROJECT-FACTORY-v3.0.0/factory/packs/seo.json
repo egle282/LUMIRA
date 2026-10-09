@@ -1,0 +1,15 @@
+{
+  "name": "seo",
+  "description": "SEO, structured data, crawlability and public-page metadata.",
+  "docs": [
+    "SEO.md"
+  ],
+  "rules": [
+    "seo"
+  ],
+  "skills": [
+    "seo-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}

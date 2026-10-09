@@ -1,0 +1,29 @@
+{
+  "name": "landing",
+  "description": "Marketing/landing website with strong SEO, conversion UX and performance focus.",
+  "docs": [
+    "PRODUCT",
+    "UX",
+    "TESTING",
+    "DEPLOYMENT",
+    "QUALITY-GATE"
+  ],
+  "skills": [
+    "product-discovery",
+    "ux-architecture",
+    "ui-design-system",
+    "frontend-engineering",
+    "testing-verification",
+    "release-quality-gate"
+  ],
+  "agents": [
+    "product-director",
+    "ux-architect",
+    "frontend-engineer",
+    "qa-reviewer"
+  ],
+  "packs": [
+    "seo",
+    "analytics"
+  ]
+}

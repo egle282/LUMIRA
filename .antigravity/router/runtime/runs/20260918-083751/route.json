@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "task": "Добавь RAG по PDF с tenant isolation",
+  "classification": {
+    "type": "ai",
+    "risk": "high",
+    "scope": "module"
+  },
+  "agents": [
+    "director",
+    "ai-engineer",
+    "database",
+    "security",
+    "reviewer"
+  ],
+  "skills": [
+    "ai-engineering",
+    "testing",
+    "observability",
+    "rag",
+    "security"
+  ],
+  "always_load": [
+    ".antigravity/SYSTEM.md",
+    ".antigravity/AGENTS.md",
+    ".antigravity/CAPABILITY_LEDGER.md"
+  ],
+  "repo_signals": {
+    "python": true,
+    "typescript": true,
+    "docker": false,
+    "supabase": false,
+    "terraform": true
+  },
+  "human_authorization": true,
+  "validation": [
+    "focused tests",
+    "build/typecheck where applicable",
+    "final diff review"
+  ]
+}

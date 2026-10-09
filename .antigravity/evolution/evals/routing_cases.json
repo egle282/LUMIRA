@@ -1,0 +1,22 @@
+[
+  {
+    "task": "Исправь кнопку логина",
+    "expected_type": "bug"
+  },
+  {
+    "task": "Добавь RAG по PDF с tenant isolation",
+    "expected_type": "ai"
+  },
+  {
+    "task": "Создай RLS для documents",
+    "expected_type": "database"
+  },
+  {
+    "task": "Подготовь sitemap и canonical",
+    "expected_type": "seo"
+  },
+  {
+    "task": "Задеплой production в Vercel",
+    "expected_type": "deployment"
+  }
+]

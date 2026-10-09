@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-lumira_admin}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: lumira_prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - lumira_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-lumira_admin} -d lumira_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks:
+      - lumira_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    environment:
+      - ENV=production
+      - DB_HOST=db
+      - DB_USER=${DB_USER:-lumira_admin}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=lumira_prod
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - LLM_API_KEY=${LLM_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - lumira_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  bot:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.bot
+    restart: always
+    environment:
+      - ENV=production
+      - DB_HOST=db
+      - DB_USER=${DB_USER:-lumira_admin}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=lumira_prod
+      - REDIS_URL=redis://redis:6379/0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - LLM_API_KEY=${LLM_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - lumira_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - lumira_net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  lumira_net:
+    driver: bridge

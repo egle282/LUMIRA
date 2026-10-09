@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20260918-083751",
+  "task": "Добавь RAG по PDF с tenant isolation",
+  "route": {
+    "version": "1.0",
+    "task": "Добавь RAG по PDF с tenant isolation",
+    "classification": {
+      "type": "ai",
+      "risk": "high",
+      "scope": "module"
+    },
+    "agents": [
+      "director",
+      "ai-engineer",
+      "database",
+      "security",
+      "reviewer"
+    ],
+    "skills": [
+      "ai-engineering",
+      "testing",
+      "observability",
+      "rag",
+      "security"
+    ],
+    "always_load": [
+      ".antigravity/SYSTEM.md",
+      ".antigravity/AGENTS.md",
+      ".antigravity/CAPABILITY_LEDGER.md"
+    ],
+    "repo_signals": {
+      "python": true,
+      "typescript": true,
+      "docker": false,
+      "supabase": false,
+      "terraform": true
+    },
+    "human_authorization": true,
+    "validation": [
+      "focused tests",
+      "build/typecheck where applicable",
+      "final diff review"
+    ]
+  },
+  "context_manifest": ".antigravity/router/runtime/runs/20260918-083751/context_manifest.json",
+  "phase": "planned",
+  "source_modified": false,
+  "next_steps": [
+    "Read route.json and context_manifest.json.",
+    "Load the selected agent/skill instructions.",
+    "Produce an implementation plan before editing for medium/high-risk work.",
+    "Run QA and reviewer checks after implementation.",
+    "Record outcome in evolution/experience log."
+  ]
+}

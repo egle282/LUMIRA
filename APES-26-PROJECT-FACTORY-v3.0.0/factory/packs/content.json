@@ -1,0 +1,15 @@
+{
+  "name": "content",
+  "description": "Editorial/content architecture and publishing workflows.",
+  "docs": [
+    "CONTENT.md"
+  ],
+  "rules": [
+    "content"
+  ],
+  "skills": [
+    "content-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}

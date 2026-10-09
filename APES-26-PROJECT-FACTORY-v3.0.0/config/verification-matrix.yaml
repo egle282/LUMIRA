@@ -1,0 +1,23 @@
+checks:
+  always:
+    - inspect_diff
+    - no_secrets
+    - acceptance_criteria
+  ui:
+    - browser_verification
+    - responsive_check
+    - accessibility_check
+  backend:
+    - typecheck_or_static_analysis
+    - integration_tests
+    - authorization_check
+  ai:
+    - schema_validation
+    - evaluation_regression
+    - prompt_injection_review
+    - cost_latency_review
+  release:
+    - build
+    - smoke_test
+    - monitoring
+    - rollback_path

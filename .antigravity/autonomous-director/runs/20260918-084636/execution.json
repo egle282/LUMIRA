@@ -1,0 +1,382 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20260918-084636",
+  "task": "Исправь текст кнопки",
+  "route": {
+    "version": "1.0",
+    "task": "Исправь текст кнопки",
+    "classification": {
+      "type": "feature",
+      "risk": "low",
+      "scope": "module"
+    },
+    "agents": [
+      "director",
+      "architect",
+      "reviewer"
+    ],
+    "skills": [],
+    "always_load": [
+      ".antigravity/SYSTEM.md",
+      ".antigravity/AGENTS.md",
+      ".antigravity/CAPABILITY_LEDGER.md"
+    ],
+    "repo_signals": {
+      "python": true,
+      "typescript": true,
+      "docker": false,
+      "supabase": false,
+      "terraform": true
+    },
+    "human_authorization": false,
+    "validation": [
+      "focused tests",
+      "build/typecheck where applicable",
+      "final diff review"
+    ]
+  },
+  "risk_gate": {
+    "risk": "low",
+    "execution_policy": "auto",
+    "human_approval_required": false
+  },
+  "approval_granted": true,
+  "project_state": {
+    "schema_version": "1.0",
+    "project": {
+      "root": "/mnt/data/AI_PROJECT_PACK-v9-AUTONOMOUS-DIRECTOR"
+    },
+    "health": {
+      "architecture": 0,
+      "database": 0,
+      "api": 1,
+      "frontend": 0,
+      "ai": 0,
+      "tests": 0,
+      "security": 0,
+      "documentation": 1
+    },
+    "risks": [],
+    "debt": [],
+    "open_proposals": [],
+    "updated_at": "2026-09-18T08:46:50.086614"
+  },
+  "context_manifest": {
+    "schema_version": "1.0",
+    "task": "Исправь текст кнопки",
+    "project_root": "/mnt/data/AI_PROJECT_PACK-v9-AUTONOMOUS-DIRECTOR",
+    "selection": {
+      "top_k": 30,
+      "max_file_bytes": 300000,
+      "method": "deterministic lexical relevance scoring"
+    },
+    "context": [
+      {
+        "path": ".antigravity/GEMINI_DIRECTOR.md",
+        "score": 1000,
+        "size_bytes": 1767,
+        "reasons": [
+          "always-context"
+        ],
+        "sha256": "a375269c34906d517f4a76f1f2224b4de720b081d715d84c564da72a8fde916b"
+      },
+      {
+        "path": ".antigravity/evolution/evals/README.md",
+        "score": 15,
+        "size_bytes": 515,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "53a0bbcc1bbe1795db0fbe6bf3d91ec1bc82431c7fcecce8d4cf4cf2d14b72d4"
+      },
+      {
+        "path": ".antigravity/router/README.md",
+        "score": 15,
+        "size_bytes": 264,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "4a846088b8ef5b475b701d9726b75a0c0dcf24256530d11e012daeea1372d342"
+      },
+      {
+        "path": ".antigravity/router/runtime/README.md",
+        "score": 15,
+        "size_bytes": 593,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "575e359239d4413020cd0446a863aff2e511eb28efa9e0197a77c849b07da277"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/README.md",
+        "score": 15,
+        "size_bytes": 2239,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "d12c3f215be60f5b6b75e735d9b1adad35d940fc70a8db12243e8df3063e55b7"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/antigravity/.agents/skills/system-design-architect/README.md",
+        "score": 15,
+        "size_bytes": 2453,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "7aa600a76df9728ba915c75697f82d9d3faf42d01fef8c4e6eeee4815e8afc67"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/codex/README.md",
+        "score": 15,
+        "size_bytes": 178,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "22f6860d25a4d4a47ac3cd26c5fd7364b0618a213a1d9145c5d7118ffc223e0a"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/codegpt/README.md",
+        "score": 15,
+        "size_bytes": 345,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "e4a5632fc26951fd4d4a0c3f45ec6c27249b7be4d135766cb7b5384ed94bdab4"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/grok/README.md",
+        "score": 15,
+        "size_bytes": 342,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "5b8803b9ef4ed386c49533b8393fadc03d8df85caaf251e08c86fdfac6a9b3e1"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/hermes/README.md",
+        "score": 15,
+        "size_bytes": 344,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "4300e3a36346d83e832df3b9be2af592db2879560c3ad9509d49135b502b942c"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/kimi-code/README.md",
+        "score": 15,
+        "size_bytes": 347,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "6b4a27194b3125bda6b8e63618d079098bf26ffb9f9420902b38b08327ca83e8"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/koda/README.md",
+        "score": 15,
+        "size_bytes": 342,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "2e5f51a59253eb17c081a312293135a5f6dda896638ff469452e14d7890db103"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/minimax-agent/README.md",
+        "score": 15,
+        "size_bytes": 351,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "9b4477e87b0a1bd2ca64207aac0a03f0d3605bebd5191d77805bc0815b07c219"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/ollama/README.md",
+        "score": 15,
+        "size_bytes": 344,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "b23644a0fa0313f4c9a77dc666473ba74f9ec95619f00889e01fbcd8ffa45a32"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/adapters/fallback/qwen/README.md",
+        "score": 15,
+        "size_bytes": 342,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "4caca37ae2775f8be780b78957c072e12751aba7f73026cb67587323651c3dc5"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/packaging/README.md",
+        "score": 15,
+        "size_bytes": 1651,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "45a06bc65f0384e68c39c6aad3adea75a1c31ea98ffda28dc9cd335727168c96"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/packaging/npm/README.md",
+        "score": 15,
+        "size_bytes": 396,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "4f4e671437e07ea02e47557d280a86c35d601c782aa58293bad883f2e2769e2b"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/packaging/npm/package.json",
+        "score": 15,
+        "size_bytes": 283,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "74bc9756651fe5b240a5d209b04c9971b062adc71c4c72dc90065f70fd2c5988"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/packaging/pip/README.md",
+        "score": 15,
+        "size_bytes": 238,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "f29d7b0343e04d81d87139b7751238a114c9a946b70f38769d598a5bfbfb5c6a"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/packaging/pip/pyproject.toml",
+        "score": 15,
+        "size_bytes": 449,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "1f05af0df91cccd3843877f75f072cb5fb940a2b1550b7940086e0dda8ca3fb2"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.antigravity/ralph/README.md",
+        "score": 15,
+        "size_bytes": 7377,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "56698a2d5ede1eef6879aec27dce3f0edf38a199658746fab9a303810b67af5c"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.antigravity/ralph/flowchart/README.md",
+        "score": 15,
+        "size_bytes": 2555,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "f58b5b17f83db63c09a9f2c059ec435ac8a3feb66f9337391ed5f3f62cff4e63"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.antigravity/ralph/flowchart/package.json",
+        "score": 15,
+        "size_bytes": 743,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "e6a197bc1af5957f9e88f0c7e839e47e298883e924506216824f118887159a76"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.antigravity/router/README.md",
+        "score": 15,
+        "size_bytes": 393,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "78eae28ac919b6fe3a8247034981dd1ac2a41db5822b5100eb2fefd8df059f9b"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/README.md",
+        "score": 15,
+        "size_bytes": 1273,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "5e4143f01109fdba4dc7f19084add6502718a5fc0003ef3b080613ff69b0b10a"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/agents/README.md",
+        "score": 15,
+        "size_bytes": 3126,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "4d19df6e4a3f159bab5039116f8ac387c53eeeab9d5dcd8f89252f0dfa6211ca"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/commands/README.md",
+        "score": 15,
+        "size_bytes": 4162,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "be339d996b6b42c5416ff13ed9fa1005176faa3f518f69fb537bbe235c1f8302"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/rules/README.md",
+        "score": 15,
+        "size_bytes": 1457,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "6d23834d84e5294f5ff8889d210bc5b294dbd095f166a7bc1f04cde7436e8628"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/skills/README.md",
+        "score": 15,
+        "size_bytes": 5782,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "aa3a8e88a61a18e1d23168e10d7d0a8ebad0444aed7aab56835a697dfc6e3f99"
+      },
+      {
+        "path": "AI_PROJECT_PACK-integrated-work/AI_PROJECT_PACK/source/.claude/skills/ceo-council/README.md",
+        "score": 15,
+        "size_bytes": 2759,
+        "reasons": [
+          "project-metadata"
+        ],
+        "sha256": "37d8b43bb7bea81f5ad0b48a95d3b47f6867c09f832a6df38e71684cba973a75"
+      }
+    ],
+    "skipped": {
+      "secret": 0,
+      "binary": 64,
+      "excluded": 3547,
+      "oversize": 1
+    },
+    "counts": {
+      "candidates_scored": 30,
+      "selected": 30
+    },
+    "safety": {
+      "source_files_modified": false,
+      "secret_files_included": false,
+      "binary_files_included": false
+    }
+  },
+  "relevant_knowledge": [
+    {
+      "path": ".antigravity/router/runtime/README.md",
+      "score": 0.3333,
+      "matched_tokens": [
+        "исправь"
+      ]
+    }
+  ],
+  "execution": {
+    "status": "authorized_for_agent",
+    "source_modified": false
+  },
+  "required_sequence": [
+    "plan",
+    "implement",
+    "test",
+    "review",
+    "record-experience",
+    "update-state"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "analytics",
+  "description": "Product analytics, event taxonomy and privacy-aware measurement.",
+  "docs": [
+    "ANALYTICS.md"
+  ],
+  "rules": [
+    "analytics"
+  ],
+  "skills": [
+    "analytics-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}

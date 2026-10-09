@@ -1,0 +1,36 @@
+{
+  "name": "content-site",
+  "description": "Content/news/blog/media site with SEO, editorial UX and publishing workflows.",
+  "docs": [
+    "PRODUCT",
+    "UX",
+    "ARCHITECTURE",
+    "TESTING",
+    "DEPLOYMENT",
+    "QUALITY-GATE",
+    "OBSERVABILITY"
+  ],
+  "skills": [
+    "product-discovery",
+    "ux-architecture",
+    "ui-design-system",
+    "architecture",
+    "frontend-engineering",
+    "backend-engineering",
+    "testing-verification",
+    "release-quality-gate"
+  ],
+  "agents": [
+    "product-director",
+    "ux-architect",
+    "software-architect",
+    "frontend-engineer",
+    "backend-engineer",
+    "qa-reviewer"
+  ],
+  "packs": [
+    "seo",
+    "analytics",
+    "content"
+  ]
+}

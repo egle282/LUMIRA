@@ -1,0 +1,15 @@
+{
+  "name": "payments",
+  "description": "Payments, billing, subscriptions and webhook reliability.",
+  "docs": [
+    "PAYMENTS.md"
+  ],
+  "rules": [
+    "payments"
+  ],
+  "skills": [
+    "payments-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}

@@ -1,0 +1,15 @@
+{
+  "name": "rag",
+  "description": "Retrieval augmented generation, provenance, freshness and access control.",
+  "docs": [
+    "RAG.md"
+  ],
+  "rules": [
+    "rag"
+  ],
+  "skills": [
+    "rag-engineering"
+  ],
+  "agents": [],
+  "files": {}
+}
