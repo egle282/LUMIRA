@@ -133,11 +133,11 @@ async def handle_user_message(message: Message, state: FSMContext):
         )
         sections = [html.escape(response.summary)]
         if response.opportunities:
-            sections.append("🌟 <b>Возможности</b>\n" + "\n".join(f"• {item}" for item in response.opportunities))
+            sections.append("🌟 <b>Возможности</b>\n" + "\n".join(f"• {html.escape(item)}" for item in response.opportunities))
         if response.risks:
-            sections.append("⚠️ <b>На что обратить внимание</b>\n" + "\n".join(f"• {item}" for item in response.risks))
+            sections.append("⚠️ <b>На что обратить внимание</b>\n" + "\n".join(f"• {html.escape(item)}" for item in response.risks))
         if response.recommendations:
-            sections.append("💡 <b>Рекомендации</b>\n" + "\n".join(f"• {item}" for item in response.recommendations))
+            sections.append("💡 <b>Рекомендации</b>\n" + "\n".join(f"• {html.escape(item)}" for item in response.recommendations))
         await message.answer(
             f"✨ <i>Разбор вопроса:</i>\n\n«{html.escape(message.text)}»\n\n"
             + "\n\n".join(sections)
@@ -211,7 +211,7 @@ async def handle_main_menu(callback: CallbackQuery):
                 degree = longitude % 30
                 lines.append(f"• {planet}: {sign}, {degree:.1f}° · накшатра #{int(data['nakshatra_index']) + 1}, пада {data['pada']}")
             await callback.message.answer(
-                f"🗺️ <b>Натальная карта · {profile_name}</b>\n"
+                f"🗺️ <b>Натальная карта · {html.escape(profile_name)}</b>\n"
                 + "\n".join(lines)
                 + "\n\n<i>Расчёт Swiss Ephemeris, сидерический зодиак Лахири.</i>"
             )
