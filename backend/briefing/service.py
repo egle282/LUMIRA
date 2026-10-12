@@ -46,7 +46,11 @@ class BriefingService:
         except Exception as exc:
             raise ValueError("The birth profile has an invalid timezone.") from exc
 
-        local_birth = profile.birth_date.replace(tzinfo=zone)
+        # Birth date is stored as a naive datetime and birth clock time separately.
+        # Use both fields so the daily briefing's ascendant and houses match the profile.
+        birth_date = profile.birth_date.date() if isinstance(profile.birth_date, datetime) else profile.birth_date
+        birth_clock = time.fromisoformat(profile.birth_time_str)
+        local_birth = datetime.combine(birth_date, birth_clock, tzinfo=zone)
         birth_utc = local_birth.astimezone(timezone.utc)
         local_target = datetime.combine(target_date.date(), time(12, 0), tzinfo=zone)
         target_utc = local_target.astimezone(timezone.utc)
