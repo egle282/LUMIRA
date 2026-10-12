@@ -57,6 +57,7 @@
    ```bash
    cp .env.example .env
    ```
+   **Важно:** значения в `.env.example` — только placeholders. До запуска замените все пароли, `JWT_SECRET` и другие секреты на собственные уникальные значения. Не коммитьте `.env` в Git.
 
 2. Сгенерируйте надежный секретный ключ JWT (не менее 32 символов):
    ```bash
@@ -138,8 +139,12 @@ pip install -r backend/requirements.txt
 # Создание таблиц и активация RLS
 python -m backend.scripts.init_tables
 
-# Создание первого системного администратора
-python backend/scripts/create_admin.py admin@example.com "SuperSecurePassword123!"
+# Создание первого системного администратора: вводите пароль скрыто, не вставляйте его в историю команд
+read -r -p "Admin email: " ADMIN_EMAIL
+read -r -s -p "Admin password: " ADMIN_PASSWORD
+echo
+python backend/scripts/create_admin.py "$ADMIN_EMAIL" "$ADMIN_PASSWORD"
+unset ADMIN_PASSWORD
 
 # Запуск FastAPI сервера
 uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
