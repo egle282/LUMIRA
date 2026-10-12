@@ -32,8 +32,8 @@ class BriefingService:
         self.user_id = user_id
         self.tenant_id = tenant_id
 
-    async def generate_daily_briefing(self, target_date: datetime) -> DailyBriefing:
-        logger.info("Generating daily briefing for user_id=%s date=%s", self.user_id, target_date.date())
+    async def generate_daily_briefing(self, target_date: datetime | None) -> DailyBriefing:
+        logger.info("Generating daily briefing for user_id=%s date=%s", self.user_id, target_date.date() if target_date else "profile-local-today")
         async with AsyncSessionLocal() as session:
             await set_tenant_context(session, self.tenant_id)
             result = await session.execute(select(Profile).where(Profile.user_id == self.user_id).limit(1))
@@ -52,7 +52,8 @@ class BriefingService:
         birth_clock = time.fromisoformat(profile.birth_time_str)
         local_birth = datetime.combine(birth_date, birth_clock, tzinfo=zone)
         birth_utc = local_birth.astimezone(timezone.utc)
-        local_target = datetime.combine(target_date.date(), time(12, 0), tzinfo=zone)
+        local_date = target_date.date() if target_date else datetime.now(zone).date()
+        local_target = datetime.combine(local_date, time(12, 0), tzinfo=zone)
         target_utc = local_target.astimezone(timezone.utc)
 
         panchanga_data = engine.calculate_panchanga(target_utc, profile.lon, profile.lat)
