@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-lumira_admin}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: lumira_prod
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: always
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
     volumes:
       - redisdata:/data
     networks:
@@ -40,10 +40,10 @@ services:
     restart: always
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:-lumira_app_password}@db/lumira_prod
-      - ADMIN_DATABASE_URL=postgresql+asyncpg://${ADMIN_DB_USER:-lumira_admin_role}:${ADMIN_DB_PASSWORD:-lumira_admin_password}@db/lumira_prod
+      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}@db/lumira_prod
+      - ADMIN_DATABASE_URL=postgresql+asyncpg://${ADMIN_DB_USER:-lumira_admin_role}:${ADMIN_DB_PASSWORD:?Set ADMIN_DB_PASSWORD in .env}@db/lumira_prod
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
@@ -93,7 +93,6 @@ services:
     restart: always
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - backend
     networks:
