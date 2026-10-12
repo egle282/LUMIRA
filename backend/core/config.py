@@ -24,8 +24,20 @@ class Settings(BaseSettings):
     @model_validator(mode='after')
     def validate_security_settings(self):
         if self.ENVIRONMENT == "production":
-            if not self.JWT_SECRET or len(self.JWT_SECRET) < 32 or self.JWT_SECRET == "your_jwt_secret_here" or self.JWT_SECRET == "default_secret":
-                raise ValueError("A strong JWT_SECRET (at least 32 chars) must be provided in production")
+            placeholder_secrets = {
+                "your_jwt_secret_here",
+                "default_secret",
+                "your_super_secret_jwt_key_at_least_32_chars_long",
+                "change_me",
+                "changeme",
+            }
+            if (
+                not self.JWT_SECRET
+                or len(self.JWT_SECRET) < 32
+                or self.JWT_SECRET.strip().lower() in placeholder_secrets
+                or self.JWT_SECRET.strip().lower().startswith(("your_", "change_me", "changeme"))
+            ):
+                raise ValueError("A unique, non-placeholder JWT_SECRET of at least 32 characters is required in production")
         return self
 
     @property
