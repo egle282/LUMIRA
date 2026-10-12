@@ -89,7 +89,7 @@ async def test_regular_user_rls(seed_data):
     engine = create_async_engine(TEST_DB_URL)
     async with engine.begin() as conn:
         # Simulate app user
-        await conn.execute(text("SET ROLE app_user"))
+        await conn.execute(text("SET ROLE lumira_app"))
         await conn.execute(text("SET app.current_tenant = 'tenant_id_1'"))
         
         result = await conn.execute(text("SELECT COUNT(*) FROM users"))
