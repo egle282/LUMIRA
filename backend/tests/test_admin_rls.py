@@ -62,7 +62,9 @@ async def test_admin_endpoints_authorized_real_db(seed_data):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.get("/api/admin/metrics/ai-cost")
         assert response.status_code == 200
-        assert response.json()["total_tokens_used"] == 300 # Should see both tenants' tokens
+        assert response.json()["total_ai_messages"] == 0  # Seed rows are not ai_chat messages
+        assert response.json()["token_usage_tracking"] is False
+        assert response.json()["estimated_cost_usd"] is None
         
         response = await ac.get("/api/admin/users")
         assert response.status_code == 200
