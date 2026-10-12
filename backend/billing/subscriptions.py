@@ -25,7 +25,7 @@ PLANS: Dict[PlanType, SubscriptionPlan] = {
         monthly_price=0.0,
         max_daily_ai_messages=5,
         max_saved_charts=1,
-        features=["Natal chart", "Daily Panchanga", "Basic AI chat"],
+        features=["Natal chart", "Daily Panchanga", "5 AI chat messages per day"],
     ),
     PlanType.PRO: SubscriptionPlan(
         id="pro",
@@ -33,7 +33,7 @@ PLANS: Dict[PlanType, SubscriptionPlan] = {
         monthly_price=9.99,
         max_daily_ai_messages=50,
         max_saved_charts=1,
-        features=["Natal chart", "Personal life-area signals", "Panchanga screening", "AI chat"],
+        features=["All current features", "50 AI chat messages per day"],
     ),
     PlanType.PREMIUM: SubscriptionPlan(
         id="premium",
@@ -41,7 +41,7 @@ PLANS: Dict[PlanType, SubscriptionPlan] = {
         monthly_price=24.99,
         max_daily_ai_messages=9999,
         max_saved_charts=1,
-        features=["All currently implemented astrology features", "Expanded AI chat limit", "Stripe subscription management"],
+        features=["All current features", "Expanded AI chat limit (up to 9999 per day)", "Stripe subscription management"],
     ),
 }
 
