@@ -76,6 +76,24 @@ async def main() -> None:
         await conn.execute(text(
             f'GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{admin_role}"'
         ))
+        # Tenant registry rows are created during signup, but regular users must
+        # never rename or delete tenants or rewrite tenant ownership metadata.
+        await conn.execute(text(
+            f'REVOKE UPDATE, DELETE ON TABLE tenants FROM "{app_role}"'
+        ))
+        await conn.execute(text(
+            f'GRANT SELECT, INSERT ON TABLE tenants TO "{app_role}"'
+        ))
+        # Preserve least privilege for tables created by future schema updates.
+        await conn.execute(text(
+            f'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "{app_role}"'
+        ))
+        await conn.execute(text(
+            f'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO "{app_role}"'
+        ))
+        await conn.execute(text(
+            f'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO "{admin_role}"'
+        ))
         for statement in statements:
             await conn.execute(text(statement))
 
