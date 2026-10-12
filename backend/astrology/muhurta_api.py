@@ -18,10 +18,10 @@ router = APIRouter(prefix="/muhurta", tags=["Muhurta"])
 FAVORABLE_TITHIS = {2, 3, 5, 7, 10, 11, 13, 15, 17, 18, 20, 22, 25, 27, 29, 30}
 FAVORABLE_NAKSHATRAS = {1, 4, 5, 7, 8, 13, 14, 17, 21, 22, 23, 26, 27}
 ACTIVITY_TITHI_PENALTIES = {
-    "business": {4, 9, 14, 19, 24, 29},
-    "marriage": {4, 6, 9, 14, 19, 24, 29},
-    "travel": {4, 9, 14, 19, 24, 29},
-    "health": {4, 9, 14, 19, 24, 29},
+    "business": {4, 9, 14, 19, 24, 29, 30},
+    "marriage": {4, 6, 9, 14, 19, 24, 29, 30},
+    "travel": {4, 9, 14, 19, 24, 29, 30},
+    "health": {4, 9, 14, 19, 24, 29, 30},
 }
 TITHI_NAMES = ["Shukla Pratipada", "Shukla Dvitiya", "Shukla Tritiya", "Shukla Chaturthi", "Shukla Panchami", "Shukla Shashthi", "Shukla Saptami", "Shukla Ashtami", "Shukla Navami", "Shukla Dashami", "Shukla Ekadashi", "Shukla Dvadashi", "Shukla Trayodashi", "Shukla Chaturdashi", "Purnima", "Krishna Pratipada", "Krishna Dvitiya", "Krishna Tritiya", "Krishna Chaturthi", "Krishna Panchami", "Krishna Shashthi", "Krishna Saptami", "Krishna Ashtami", "Krishna Navami", "Krishna Dashami", "Krishna Ekadashi", "Krishna Dvadashi", "Krishna Trayodashi", "Krishna Chaturdashi", "Amavasya"]
 NAKSHATRA_NAMES = ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Mula","Purva Ashadha","Uttara Ashadha","Shravana","Dhanishta","Shatabhisha","Purva Bhadrapada","Uttara Bhadrapada","Revati"]
