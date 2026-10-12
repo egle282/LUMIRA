@@ -13,6 +13,7 @@ from backend.ai.openrouter_provider import OpenRouterProvider
 from backend.ai.gemini_provider import GeminiProvider
 from backend.database.database import AsyncSessionLocal
 from backend.database.models import Profile
+from backend.database.tenant import set_tenant_context
 from backend.core.config import settings
 
 logger = logging.getLogger("lumira_backend")
@@ -27,12 +28,14 @@ FAVORABLE_TITHIS = {2, 3, 5, 7, 10, 11, 13, 15, 17, 18, 20, 22, 25, 27, 29, 30}
 FAVORABLE_NAKSHATRAS = {1, 4, 5, 7, 8, 13, 14, 17, 21, 22, 23, 26, 27}
 
 class BriefingService:
-    def __init__(self, user_id: str):
+    def __init__(self, user_id: str, tenant_id: str):
         self.user_id = user_id
+        self.tenant_id = tenant_id
 
     async def generate_daily_briefing(self, target_date: datetime) -> DailyBriefing:
         logger.info("Generating daily briefing for user_id=%s date=%s", self.user_id, target_date.date())
         async with AsyncSessionLocal() as session:
+            await set_tenant_context(session, self.tenant_id)
             result = await session.execute(select(Profile).where(Profile.user_id == self.user_id).limit(1))
             profile = result.scalars().first()
         if profile is None:
