@@ -7,11 +7,11 @@ export function Settings() {
   
   const [profile, setProfile] = useState({
     name: '',
-    birth_date: '1990-01-01',
-    birth_time_str: '12:00',
-    lat: 19.0760,
-    lon: 72.8777,
-    timezone: 'Asia/Kolkata'
+    birth_date: '',
+    birth_time_str: '',
+    lat: '',
+    lon: '',
+    timezone: ''
   });
   const [status, setStatus] = useState('');
 
@@ -43,7 +43,26 @@ export function Settings() {
   }, []);
 
   const handleSaveProfile = async () => {
-    setStatus('Сохранение...');
+    if (
+      !profile.name.trim() ||
+      !profile.birth_date ||
+      !profile.birth_time_str ||
+      profile.lat === '' ||
+      profile.lon === '' ||
+      !profile.timezone.trim() ||
+      !Number.isFinite(Number(profile.lat)) ||
+      !Number.isFinite(Number(profile.lon)) ||
+      Number(profile.lat) < -90 ||
+      Number(profile.lat) > 90 ||
+      Number(profile.lon) < -180 ||
+      Number(profile.lon) > 180
+    ) {
+      setStatus(language === 'ru'
+        ? 'Заполните все поля. Широта должна быть от −90 до 90, долгота — от −180 до 180.'
+        : 'Complete all fields. Latitude must be −90 to 90 and longitude −180 to 180.');
+      return;
+    }
+    setStatus(language === 'ru' ? 'Сохранение…' : 'Saving…');
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${getApiBaseUrl()}/api/profile/me`, {
@@ -55,10 +74,11 @@ export function Settings() {
         body: JSON.stringify(profile)
       });
       if (res.ok) {
-        setStatus('Профиль сохранен успешно!');
+        setStatus(language === 'ru' ? 'Профиль сохранён успешно.' : 'Profile saved successfully.');
         setTimeout(() => setStatus(''), 3000);
       } else {
-        setStatus('Ошибка при сохранении.');
+        const data = await res.json().catch(() => ({}));
+        setStatus(data.detail || (language === 'ru' ? 'Ошибка при сохранении.' : 'Could not save profile.'));
       }
     } catch (err) {
       setStatus('Ошибка сети.');
@@ -124,14 +144,14 @@ export function Settings() {
                 type="number" 
                 placeholder="Latitude (e.g. 55.75)"
                 value={profile.lat} 
-                onChange={e => setProfile({...profile, lat: parseFloat(e.target.value)})} 
+                onChange={e => setProfile({...profile, lat: e.target.value === '' ? '' : Number(e.target.value)})} 
                 style={{ flex: 1, padding: '0.8rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-color)', color: 'white', borderRadius: '8px' }} 
               />
               <input 
                 type="number" 
                 placeholder="Longitude (e.g. 37.61)"
                 value={profile.lon} 
-                onChange={e => setProfile({...profile, lon: parseFloat(e.target.value)})} 
+                onChange={e => setProfile({...profile, lon: e.target.value === '' ? '' : Number(e.target.value)})} 
                 style={{ flex: 1, padding: '0.8rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-color)', color: 'white', borderRadius: '8px' }} 
               />
             </div>
