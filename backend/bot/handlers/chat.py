@@ -5,7 +5,7 @@ import asyncio
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from backend.ai.gemini_provider import GeminiProvider
 from backend.ai.openrouter_provider import OpenRouterProvider
@@ -14,7 +14,8 @@ from backend.astrology.engine import engine
 from backend.core.config import settings
 from backend.core.logger import logger
 from backend.database.database import AdminAsyncSessionLocal, AsyncSessionLocal
-from backend.database.models import Profile, User
+from backend.database.models import Profile, User, Subscription, InteractionLog
+from backend.billing.subscriptions import DAILY_AI_LIMITS
 from backend.briefing.service import BriefingService
 from backend.database.tenant import set_tenant_context
 
@@ -53,6 +54,36 @@ async def handle_user_message(message: Message, state: FSMContext):
             profile = result.scalars().first()
             if profile is None:
                 await message.answer("Профиль не заполнен. Выполните /start.")
+                return
+            # Enforce the same subscription quota as the HTTP chat endpoint.
+            now = datetime.now(dt_timezone.utc)
+            zone = ZoneInfo(profile.timezone)
+            day_start = now.astimezone(zone).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            ).astimezone(dt_timezone.utc)
+            sub_result = await db.execute(
+                select(Subscription).where(Subscription.user_id == user.id)
+                .order_by(Subscription.created_at.desc()).limit(1)
+            )
+            subscription = sub_result.scalars().first()
+            plan_name = "free"
+            if subscription and subscription.status in {"active", "trialing"}:
+                if subscription.current_period_end is None or subscription.current_period_end > now:
+                    plan_name = subscription.plan_name.lower()
+            usage_result = await db.execute(
+                select(func.count()).select_from(InteractionLog).where(
+                    InteractionLog.user_id == user.id,
+                    InteractionLog.intent == "ai_chat",
+                    InteractionLog.created_at >= day_start,
+                )
+            )
+            used = int(usage_result.scalar_one())
+            daily_limit = DAILY_AI_LIMITS.get(plan_name, DAILY_AI_LIMITS["free"])
+            if used >= daily_limit:
+                await message.answer(
+                    f"Достигнут дневной лимит AI-сообщений для тарифа {plan_name}: {daily_limit}. "
+                    "Попробуйте завтра или проверьте тариф в веб-приложении."
+                )
                 return
             # Copy scalar fields before closing the session.
             birth_date = profile.birth_date
@@ -112,6 +143,17 @@ async def handle_user_message(message: Message, state: FSMContext):
             + "\n\n".join(sections)
             + "\n\n<i>Астрологическая интерпретация не является гарантией событий или профессиональной консультацией.</i>"
         )
+        async with AsyncSessionLocal() as db:
+            await set_tenant_context(db, str(user.tenant_id))
+            db.add(InteractionLog(
+                tenant_id=user.tenant_id,
+                user_id=user.id,
+                intent="ai_chat",
+                input_text=message.text[:4000],
+                output_text="\n\n".join(sections),
+                tokens_used=0,
+            ))
+            await db.commit()
     except Exception:
         logger.exception("Error processing AI chat", tg_id=message.from_user.id)
         await message.answer(
