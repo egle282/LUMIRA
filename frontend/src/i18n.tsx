@@ -39,6 +39,7 @@ export const translations: Translations = {
   'admin.title': { en: 'Admin Dashboard', ru: 'Панель Управления' },
   'admin.tokens': { en: 'AI Chat Messages', ru: 'Сообщения AI-чата' },
   'admin.cost': { en: 'Provider Cost Tracking', ru: 'Учёт расходов провайдера' },
+  'admin.cost_unavailable': { en: 'Not tracked yet', ru: 'Пока не отслеживается' },
   'admin.users': { en: 'User Management', ru: 'Управление пользователями' },
   'admin.email': { en: 'Email', ru: 'Email' },
   'admin.role': { en: 'Role', ru: 'Роль' },
