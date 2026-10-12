@@ -70,4 +70,6 @@ async def test_chat_requires_birth_profile_without_leaking_internal_details():
         assert "профиль рождения" in response.json()["detail"].lower()
         assert "password hash" not in response.text.lower()
     finally:
+        from backend.database.database import engine
+        await engine.dispose()
         app.dependency_overrides.clear()
