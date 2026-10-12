@@ -42,9 +42,17 @@ async def get_billing_status(
 async def upgrade_subscription(
     plan_name: str,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     if plan_name not in PLANS:
         raise HTTPException(status_code=400, detail="Unknown subscription plan.")
+    existing_result = await db.execute(
+        select(Subscription).where(Subscription.user_id == current_user.id)
+        .order_by(Subscription.created_at.desc()).limit(1)
+    )
+    existing = existing_result.scalars().first()
+    if existing and existing.status in {"active", "trialing"} and existing.stripe_subscription_id:
+        raise HTTPException(status_code=409, detail="An active subscription already exists. Manage it through the Stripe customer portal.")
     if not settings.STRIPE_SECRET_KEY:
         raise HTTPException(status_code=503, detail="Stripe checkout is not configured.")
     plan_id = PLANS[plan_name][1]()
