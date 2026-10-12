@@ -97,6 +97,9 @@ async def test_regular_user_rls(seed_data):
         result = await conn.execute(text("SELECT COUNT(*) FROM users"))
         count = result.scalar()
         assert count == 2 # Only tenant 1 users (admin_user_id, normal_user_id), not other_user_id
+
+        result = await conn.execute(text("SELECT COUNT(*) FROM tenants"))
+        assert result.scalar() == 1  # Tenant registry is isolated as well.
         
         result = await conn.execute(text("SELECT SUM(tokens_used) FROM interaction_logs"))
         tokens = result.scalar()
