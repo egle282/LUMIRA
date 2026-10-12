@@ -4,9 +4,22 @@ from backend.main import app # Assuming FastAPI app instance is here
 
 @pytest.mark.asyncio
 async def test_health_check():
-    """Verify that the production health check is responsive."""
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        response = await ac.get("/api/health")
+    """Verify the health endpoint response when its database probe succeeds."""
+    from unittest.mock import patch
+
+    class FakeConnection:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+        async def execute(self, statement):
+            return None
+
+    with patch("backend.main.engine.connect", return_value=FakeConnection()):
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            response = await ac.get("/api/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
