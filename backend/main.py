@@ -13,7 +13,7 @@ from backend.api.profile import router as profile_router
 from backend.api.billing import router as billing_router
 
 from backend.core.config import settings
-from backend.database.database import AsyncSessionLocal
+from backend.database.database import AsyncSessionLocal, AdminAsyncSessionLocal
 from backend.database.models import User, Tenant
 from sqlalchemy.future import select
 from sqlalchemy import text
@@ -31,26 +31,36 @@ logger = logging.getLogger("lumira.api")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:
-        async with AsyncSessionLocal() as session:
-            stmt = select(User).where(User.email == settings.ADMIN_EMAIL)
-            result = await session.execute(stmt)
-            if not result.scalars().first():
-                # create system tenant
+        existing_admin = None
+        if AdminAsyncSessionLocal is not None:
+            async with AdminAsyncSessionLocal() as admin_session:
+                result = await admin_session.execute(
+                    select(User.id).where(User.email == settings.ADMIN_EMAIL)
+                )
+                existing_admin = result.scalar_one_or_none()
+
+        if existing_admin is None:
+            async with AsyncSessionLocal() as session:
+                # Create a dedicated tenant for the initial administrator.
                 new_tenant = Tenant(name="System Admin")
                 session.add(new_tenant)
                 await session.commit()
                 await session.refresh(new_tenant)
-                
-                # create admin user
+
+                # RLS requires tenant context for writes to tenant-scoped tables.
+                await session.execute(
+                    text("SELECT set_config('app.current_tenant', :tenant_id, true)"),
+                    {"tenant_id": str(new_tenant.id)},
+                )
                 new_user = User(
                     tenant_id=new_tenant.id,
                     email=settings.ADMIN_EMAIL,
                     role="admin",
-                    hashed_password=get_password_hash(settings.ADMIN_PASSWORD)
+                    hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
                 )
                 session.add(new_user)
                 await session.commit()
-                print(f"Created default admin user: {settings.ADMIN_EMAIL}")
+                logger.info("Created initial administrator account: %s", settings.ADMIN_EMAIL)
     yield
 
 app = FastAPI(title="LUMIRA API", version="1.0.0", lifespan=lifespan)
