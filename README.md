@@ -186,8 +186,12 @@ python -m backend.bot.main
 
 ```bash
 # Запуск полного набора тестов
-DATABASE_URL="postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db" \
-JWT_SECRET="lumira_test_secret_32_characters_long_min!" \
+# Use the app-role credentials configured in your local .env.
+set -a
+source .env
+set +a
+DATABASE_URL="postgresql+asyncpg://${APP_DB_USER}:${APP_DB_PASSWORD}@127.0.0.1:5433/${DB_NAME}" \
+JWT_SECRET="$(openssl rand -hex 32)" \
 PYTHONPATH=. pytest backend/tests/ tests/
 ```
 
