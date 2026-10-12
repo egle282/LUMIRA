@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
     JWT_SECRET: str
+    LLM_API_KEY: str | None = None
+    OPENROUTER_API_KEY: str | None = None
     ADMIN_EMAIL: str | None = None
     ADMIN_PASSWORD: str | None = None
     ALLOWED_ORIGINS: list[str] | str = ["http://localhost:5173", "http://localhost:3000"]
