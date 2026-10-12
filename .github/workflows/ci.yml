@@ -57,6 +57,30 @@ jobs:
         run: |
           python -m compileall backend/
 
+      - name: Configure PostgreSQL Test Role Privileges
+        run: |
+          python -c "
+          import asyncio
+          from sqlalchemy.ext.asyncio import create_async_engine
+          from sqlalchemy import text
+
+          async def configure():
+              engine = create_async_engine('postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db')
+              async with engine.begin() as conn:
+                  await conn.execute(text('''
+                      DO \$\$
+                      BEGIN
+                          IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'lumira' AND (rolsuper = true OR rolbypassrls = true)) THEN
+                              ALTER ROLE lumira NOSUPERUSER CREATEROLE NOBYPASSRLS;
+                          END IF;
+                      END
+                      \$\$;
+                  '''))
+              await engine.dispose()
+
+          asyncio.run(configure())
+          "
+
       - name: Run Pytest Suite
         env:
           DATABASE_URL: postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db

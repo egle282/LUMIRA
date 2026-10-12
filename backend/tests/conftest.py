@@ -35,10 +35,15 @@ async def setup_db():
                 IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'lumira_admin_role') THEN
                     CREATE ROLE lumira_admin_role WITH LOGIN PASSWORD 'admin_pass';
                 END IF;
+                -- Ensure lumira does not bypass RLS if running as superuser in CI container
+                IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'lumira' AND (rolsuper = true OR rolbypassrls = true)) THEN
+                    ALTER ROLE lumira NOSUPERUSER CREATEROLE NOBYPASSRLS;
+                END IF;
             END
             $$;
         """))
         await conn.execute(text("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO app_user;"))
+        await conn.execute(text("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO app_user;"))
         await conn.execute(text("GRANT app_user TO lumira;"))
         await conn.execute(text("GRANT CONNECT ON DATABASE lumira_db TO lumira_admin_role;"))
         await conn.execute(text("GRANT USAGE ON SCHEMA public TO lumira_admin_role;"))
@@ -54,6 +59,7 @@ async def db_session(setup_db):
     engine = create_async_engine(TEST_DATABASE_URL, echo=False)
     AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
     async with AsyncSessionLocal() as session:
+        await session.execute(text("SET ROLE app_user;"))
         yield session
         await session.rollback()
     await engine.dispose()
