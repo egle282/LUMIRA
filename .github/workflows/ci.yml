@@ -145,18 +145,7 @@ jobs:
       - name: Build and start core services
         run: docker compose up --build -d db redis backend frontend
 
-      - name: Wait for database and initialize schema
-        run: |
-          for attempt in $(seq 1 30); do
-            if docker compose exec -T db pg_isready -U lumira_admin -d lumira_db; then
-              break
-            fi
-            sleep 2
-          done
-          docker compose exec -T db pg_isready -U lumira_admin -d lumira_db
-          docker compose exec -T backend python -m backend.scripts.init_tables
-
-      - name: Verify API and frontend respond
+      - name: Verify development API and frontend respond
         run: |
           for attempt in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8000/api/health; then
@@ -167,10 +156,32 @@ jobs:
           curl --fail --silent http://127.0.0.1:8000/api/health
           curl --fail --silent http://127.0.0.1:5173/ | grep -qi '<html'
 
+      - name: Stop development stack before production smoke test
+        run: docker compose down -v
+
+      - name: Validate production Compose configuration
+        run: docker compose -f docker-compose.prod.yml config --quiet
+
+      - name: Build and start production services
+        run: docker compose -f docker-compose.prod.yml up --build -d db redis backend frontend
+
+      - name: Verify production initialization, API proxy, and frontend
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1/api/health; then
+              break
+            fi
+            sleep 2
+          done
+          curl --fail --silent http://127.0.0.1/api/health
+          curl --fail --silent http://127.0.0.1/ | grep -qi '<html'
+
       - name: Print service logs on failure
         if: failure()
         run: docker compose logs --no-color
 
       - name: Stop and remove containers
         if: always()
-        run: docker compose down -v
+        run: |
+          docker compose down -v || true
+          docker compose -f docker-compose.prod.yml down -v || true
