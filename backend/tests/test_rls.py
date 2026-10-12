@@ -7,12 +7,16 @@ from backend.database.tenant import set_tenant_context
 
 @pytest.mark.asyncio
 async def test_rls_tenant_isolation(db_session: AsyncSession):
-    # 1. Create two tenants
-    tenant1 = Tenant(name="Tenant 1")
-    tenant2 = Tenant(name="Tenant 2")
-    db_session.add(tenant1)
-    db_session.add(tenant2)
-    await db_session.commit()
+    # 1. Create each tenant under its own RLS context.
+    import uuid
+    tenant1 = Tenant(id=str(uuid.uuid4()), name="Tenant 1")
+    tenant2 = Tenant(id=str(uuid.uuid4()), name="Tenant 2")
+    async with db_session.begin():
+        await set_tenant_context(db_session, tenant1.id)
+        db_session.add(tenant1)
+    async with db_session.begin():
+        await set_tenant_context(db_session, tenant2.id)
+        db_session.add(tenant2)
 
     # 2. Create users in each tenant
     async with db_session.begin():
@@ -52,12 +56,16 @@ async def test_rls_tenant_isolation(db_session: AsyncSession):
 @pytest.mark.asyncio
 async def test_rls_tenant_mutations(db_session: AsyncSession):
     import sqlalchemy.exc
-    # 1. Create two tenants
-    tenant1 = Tenant(name="Tenant A")
-    tenant2 = Tenant(name="Tenant B")
-    db_session.add(tenant1)
-    db_session.add(tenant2)
-    await db_session.commit()
+    # 1. Create each tenant under its own RLS context.
+    import uuid
+    tenant1 = Tenant(id=str(uuid.uuid4()), name="Tenant A")
+    tenant2 = Tenant(id=str(uuid.uuid4()), name="Tenant B")
+    async with db_session.begin():
+        await set_tenant_context(db_session, tenant1.id)
+        db_session.add(tenant1)
+    async with db_session.begin():
+        await set_tenant_context(db_session, tenant2.id)
+        db_session.add(tenant2)
 
     # 2. Add user to Tenant A
     async with db_session.begin():
