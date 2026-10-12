@@ -52,7 +52,7 @@ services:
       dockerfile: backend/Dockerfile.bot
     environment:
       - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}@db/${DB_NAME:-lumira_db}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}@redis:6379/0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
