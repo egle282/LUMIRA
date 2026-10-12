@@ -75,10 +75,12 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    new_tenant = Tenant(name=f"Tenant for {user_data.email}")
+    # Establish the tenant ID before INSERT so the tenants RLS policy can
+    # verify ownership of the new registry row.
+    new_tenant = Tenant(id=str(__import__("uuid").uuid4()), name=f"Tenant for {user_data.email}")
+    await set_tenant_context(db, str(new_tenant.id))
     db.add(new_tenant)
     await db.flush()
-    await set_tenant_context(db, str(new_tenant.id))
     new_user = User(
         tenant_id=new_tenant.id,
         email=user_data.email,
