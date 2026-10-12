@@ -1,53 +1,59 @@
 import asyncio
 import argparse
 import sys
-from backend.database.database import AsyncSessionLocal
+import uuid
+
+from sqlalchemy import select
+
+from backend.database.database import AsyncSessionLocal, AdminAsyncSessionLocal
 from backend.database.models import User, Tenant
+from backend.database.tenant import set_tenant_context
 from backend.api.auth import get_password_hash
-from sqlalchemy import text
-from sqlalchemy.future import select
+
 
 async def create_admin(email: str, password: str):
+    if AdminAsyncSessionLocal is None:
+        raise RuntimeError(
+            "ADMIN_DATABASE_URL must be configured to safely check for existing users and tenants."
+        )
+
+    # The read-only admin connection is allowed to find records across tenants.
+    async with AdminAsyncSessionLocal() as lookup:
+        existing = await lookup.execute(select(User).where(User.email == email))
+        if existing.scalars().first():
+            print(f"Error: User {email} already exists.")
+            return
+        tenant_result = await lookup.execute(
+            select(Tenant).where(Tenant.name == "System Admin").limit(1)
+        )
+        existing_tenant = tenant_result.scalars().first()
+        tenant_id = str(existing_tenant.id) if existing_tenant else str(uuid.uuid4())
+
+    # Tenant context must be set before inserting either the tenant registry row
+    # or the user row, because both tables are protected by RLS.
     async with AsyncSessionLocal() as session:
         async with session.begin():
-            # Create default admin tenant if not exists
-            result = await session.execute(select(Tenant).where(Tenant.name == "System Admin"))
-            tenant = result.scalar_one_or_none()
-            if not tenant:
-                tenant = Tenant(name="System Admin")
-                session.add(tenant)
+            await set_tenant_context(session, tenant_id)
+            if existing_tenant is None:
+                session.add(Tenant(id=tenant_id, name="System Admin"))
                 await session.flush()
-
-            # Set tenant context for RLS policy enforcement
-            await session.execute(text(f"SET app.current_tenant = '{tenant.id}'"))
-
-            # Check if user already exists
-            result = await session.execute(select(User).where(User.email == email))
-            existing_user = result.scalar_one_or_none()
-            if existing_user:
-                print(f"Error: User {email} already exists.")
-                return
-
-            # Create the admin user
             admin = User(
-                email=email,
+                email=email.lower().strip(),
                 hashed_password=get_password_hash(password),
                 role="admin",
-                tenant_id=tenant.id
+                tenant_id=tenant_id,
             )
             session.add(admin)
-            
-        print(f"Admin user {email} created successfully!")
+
+    print(f"Admin user {email} created successfully!")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bootstrap the first admin user.")
     parser.add_argument("email", type=str, help="Admin email address")
     parser.add_argument("password", type=str, help="Admin password (at least 8 chars)")
-    
     args = parser.parse_args()
-    
     if len(args.password) < 8:
-        print("Error: Password must be at least 8 characters.")
+        print("Error: Admin password must contain at least 8 characters.")
         sys.exit(1)
-        
     asyncio.run(create_admin(args.email, args.password))
