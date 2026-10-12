@@ -60,12 +60,12 @@ async def test_rls_tenant_mutations(db_session: AsyncSession):
     import uuid
     tenant1 = Tenant(id=str(uuid.uuid4()), name="Tenant A")
     tenant2 = Tenant(id=str(uuid.uuid4()), name="Tenant B")
-    async with db_session.begin():
-        await set_tenant_context(db_session, tenant1.id)
-        db_session.add(tenant1)
-    async with db_session.begin():
-        await set_tenant_context(db_session, tenant2.id)
-        db_session.add(tenant2)
+    await set_tenant_context(db_session, tenant1.id)
+    db_session.add(tenant1)
+    await db_session.commit()
+    await set_tenant_context(db_session, tenant2.id)
+    db_session.add(tenant2)
+    await db_session.commit()
 
     # 2. Add user to Tenant A
     async with db_session.begin():
