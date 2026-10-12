@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Role names are identifiers and must be restricted before interpolation.
 APP_DB_USER=${APP_DB_USER:-lumira_app}
 APP_DB_PASSWORD=${APP_DB_PASSWORD:?APP_DB_PASSWORD must be set}
 ADMIN_DB_USER=${ADMIN_DB_USER:-lumira_admin_role}
@@ -18,7 +17,6 @@ if [[ "$APP_DB_USER" == "$ADMIN_DB_USER" ]]; then
   exit 1
 fi
 
-# Passwords are passed as psql variables, not interpolated into SQL text.
 psql -v ON_ERROR_STOP=1 \
   --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
   --set=app_role="$APP_DB_USER" --set=app_password="$APP_DB_PASSWORD" \
@@ -50,11 +48,8 @@ SELECT format(
 
 GRANT CONNECT ON DATABASE :"db_name" TO :"app_role";
 GRANT CONNECT ON DATABASE :"db_name" TO :"admin_role";
-GRANT USAGE, CREATE ON SCHEMA public TO :"app_role";
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO :"app_role";
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO :"app_role";
-
+GRANT USAGE ON SCHEMA public TO :"app_role";
 GRANT USAGE ON SCHEMA public TO :"admin_role";
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO :"admin_role";
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO :"admin_role";
+ALTER DEFAULT PRIVILEGES FOR ROLE :"POSTGRES_USER" IN SCHEMA public GRANT SELECT ON TABLES TO :"admin_role";
 EOSQL
