@@ -149,4 +149,10 @@ async def ai_chat_endpoint(
         await db.rollback()
         error_id = str(uuid.uuid4())
         logger.error("Chat error [ID: %s]: %s", error_id, exc, exc_info=True)
-        return ChatResponse(reply=f"Не удалось завершить AI-интерпретацию. Проверьте настройки AI-провайдера или повторите запрос позже. Код ошибки: {error_id}")
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "Не удалось завершить AI-интерпретацию. Проверьте настройки AI-провайдера "
+                f"или повторите запрос позже. Код ошибки: {error_id}"
+            ),
+        ) from exc
