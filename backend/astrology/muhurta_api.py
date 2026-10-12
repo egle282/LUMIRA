@@ -48,7 +48,9 @@ async def calculate_muhurta(
     for hour in range(6, 22):
         local_dt = datetime.combine(event_date, time(hour, 0), tzinfo=zone)
         utc_dt = local_dt.astimezone(timezone.utc)
-        panchanga = engine.calculate_panchanga(utc_dt, profile.lon, profile.lat)
+        panchanga = engine.calculate_panchanga(
+            utc_dt, profile.lon, profile.lat, local_weekday=local_dt.weekday()
+        )
         tithi = int(panchanga["tithi"])
         nakshatra = int(panchanga["nakshatra"])
         score = 5 + (2 if tithi in FAVORABLE_TITHIS else 0) + (2 if nakshatra in FAVORABLE_NAKSHATRAS else 0)
@@ -64,6 +66,7 @@ async def calculate_muhurta(
             "nakshatra_name": NAKSHATRA_NAMES[(nakshatra - 1) % 27],
             "yoga": panchanga["yoga"],
             "karana": panchanga["karana"],
+            "karana_name": panchanga["karana_name"],
         })
     best = max(samples, key=lambda x: x["score"])
     return {
