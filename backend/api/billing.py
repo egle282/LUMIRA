@@ -7,11 +7,12 @@ from typing import Any
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.api.deps import get_current_user, get_db
 from backend.core.config import settings
-from backend.database.models import User, Subscription
+from backend.database.models import User, Subscription, StripeWebhookEvent
 from backend.database.tenant import set_tenant_context
 
 router = APIRouter(prefix="/billing", tags=["Billing"])
@@ -127,7 +128,20 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     except (ValueError, stripe.SignatureVerificationError) as exc:
         raise HTTPException(status_code=400, detail="Invalid Stripe webhook signature or payload.") from exc
 
+    event_id = str(event["id"])
     event_type = event["type"]
+    # Persist the provider's unique event ID in the same transaction as the
+    # subscription mutation. Stripe retries are acknowledged without applying
+    # the same state transition twice.
+    inserted = await db.execute(
+        pg_insert(StripeWebhookEvent)
+        .values(id=event_id, event_type=event_type)
+        .on_conflict_do_nothing(index_elements=["id"])
+    )
+    if inserted.rowcount == 0:
+        await db.rollback()
+        return {"received": True, "duplicate": True}
+
     obj: dict[str, Any] = event["data"]["object"]
     if event_type not in {
         "checkout.session.completed",
@@ -135,6 +149,7 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         "customer.subscription.updated",
         "customer.subscription.deleted",
     }:
+        await db.commit()
         return {"received": True, "ignored": True}
 
     metadata = obj.get("metadata") or {}
