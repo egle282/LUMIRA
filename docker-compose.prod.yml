@@ -8,6 +8,10 @@ services:
       POSTGRES_USER: ${DB_USER:-lumira_admin}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: lumira_prod
+      APP_DB_USER: ${APP_DB_USER:-lumira_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-lumira_admin_role}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:?Set ADMIN_DB_PASSWORD in .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./backend/database/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
