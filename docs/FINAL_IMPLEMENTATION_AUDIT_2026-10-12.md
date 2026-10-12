@@ -1,63 +1,56 @@
-# LUMIRA — итоговый аудит реализации
+# LUMIRA — implementation readiness report
 
-**Дата:** 12 октября 2026  
-**Область проверки:** доступный исходный код ветки `main`, PR #10 и результаты GitHub Actions.  
-**Вердикт:** **NO-GO для заявления «полностью готовый production-продукт».** Проект собирается и проходит автоматические проверки, но часть продуктовых функций — заглушки, а несколько архитектурных рисков остаются.
+**Updated:** 12 October 2026  
+**Repository:** https://github.com/egle282/LUMIRA  
+**Verified commit:** `ba72fb7f9a6d155f6e63e0cf75aeb8cd473c4c79`  
+**Status:** **Self-hosted MVP: READY FOR TEST / LIMITED USE. Full production SaaS: NOT YET.**
 
-## Что проверено успешно
+This report supersedes earlier audit notes. It reflects the code currently on `main` and the successful GitHub Actions run for the verified commit above. A later commit adds an additional life-areas API test and is being validated separately.
 
-- GitHub Actions для PR #10: Backend Tests & Compile Check — success.
-- Docker Compose Clean Install Smoke Test — success, включая production Compose smoke test.
-- Frontend Build & Typecheck — success.
-- В PR #10 корректно используются конструкторы `OpenRouterProvider(api_key=...)`, `GeminiProvider(api_key=...)` и `AIOrchestrator(primary_provider=..., fallback_provider=...)`; тесты и сборка проходят на commit `0e9e2a6866450706b9f8351ff4291217de21c27b`.
-- PR #10 на момент фиксации отчёта открыт и не влит в `main`.
+## What is implemented
 
-## Критические ограничения для production
+- Docker Compose development and production configurations, with PostgreSQL, Redis, backend and frontend.
+- Registration/login with JWT, profile management and server-side validation of birth date, time, coordinates and IANA timezone.
+- Swiss Ephemeris natal chart positions in the Lahiri sidereal zodiac, including Rahu/Ketu, nakshatra/pada, basic Panchanga and local-weekday handling.
+- Life-area signals calculated from the saved birth profile, whole-sign houses, current planetary positions and Vimshottari Mahadasha. This is an astrology-oriented interpretation, not a guarantee or professional advice.
+- Daily briefing with deterministic data and optional AI interpretation; Gemini fallback is used when configured OpenRouter generation fails.
+- Telegram bot onboarding, natal chart, daily briefing and AI chat. A live Telegram conversation still requires a real bot token and has not been independently tested here.
+- Stripe Checkout, signed webhook verification, subscription state handling and customer portal. Real payments require Stripe credentials, configured recurring Price IDs and a deployed webhook endpoint.
+- Tenant-context RLS on user data and tenant registry; application role is separated from the bootstrap and read-only admin roles.
+- Regression tests for profile validation, life-area calculation, billing fail-closed behavior, astrology fields and tenant isolation.
 
-### 1. Биллинг не выполняет реальные платежи — BLOCKER
+## CI verification
 
-В `backend/billing/provider.py` методы Stripe возвращают искусственную checkout-ссылку, webhook-проверка всегда возвращает `True`, отмена подписки также возвращает `True`. Telegram provider аналогично возвращает сформированную строку, а не создаёт реальный invoice. Это не интеграция платёжного провайдера и не может безопасно использоваться для реальных списаний или подтверждения платежей.
+For commit `ba72fb7f9a6d155f6e63e0cf75aeb8cd473c4c79`, GitHub Actions reported:
 
-### 2. Астрологический API содержит mock-данные — BLOCKER для персонализированных прогнозов
-
-`backend/astrology/router.py`, endpoint `/astrology/life-areas`, явно использует фиксированные данные рождения (1990-01-01, 12:00, координаты Москвы), а не профиль авторизованного пользователя. Результат нельзя считать персональным прогнозом.
-
-### 3. Мухурта — демонстрационная функция — BLOCKER для соответствующего обещания продукта
-
-README прямо описывает Muhurta как mock UI; движок подбора благоприятных интервалов не реализован.
-
-### 4. Изоляция арендаторов требует усиления — HIGH
-
-- `backend/scripts/init_tables.py` создаёт таблицы через `DATABASE_URL`; production Compose задаёт для этой переменной роль приложения `lumira_app`. Следовательно, роль приложения, по всей видимости, становится владельцем таблиц, которые она создаёт. Владелец таблицы может менять её политики и схему; `FORCE ROW LEVEL SECURITY` не лишает владельца прав DDL.
-- `init-user-db.sh` выдаёт роли приложения `CREATE` в схеме `public`; для runtime-роли это избыточная привилегия.
-- Таблица `tenants` отсутствует в списке таблиц с RLS в `setup_rls.sql`.
-- Автоматические тесты проходят, но это само по себе не доказывает защиту от злоупотребления владельцем таблиц. Нужен отдельный тест на реальные роли и проверка владельцев объектов.
-
-### 5. Геокодирование не реализовано — MEDIUM
-
-Telegram onboarding принимает город, но затем просит пользователя вручную ввести широту, долготу и IANA timezone. Это рабочий обходной сценарий, но не автоматический поиск места рождения.
-
-### 6. Полный Telegram end-to-end не подтверждён
-
-Smoke test проверяет сборку production-образа и запуск сервисов, но в рамках аудита не выполнялся обмен сообщениями с реальным Telegram bot token и живым ключом AI-провайдера. Поэтому реальная интеграция Telegram/AI не считается проверенной.
-
-## Итоговая матрица
-
-| Область | Результат |
+| Check | Result |
 |---|---|
-| Backend tests / compile | PASS в CI |
-| Frontend build / typecheck | PASS в CI |
-| Docker Compose clean install smoke test | PASS в CI |
-| AI provider selection fix | Реализовано в PR #10; CI PASS, PR ещё не влит |
-| Реальные платежи | NOT IMPLEMENTED |
-| Полноценный движок мухурты | NOT IMPLEMENTED |
-| Персональный Life Areas endpoint | MOCK DATA |
-| Multi-tenant RLS в production-модели угроз | NEEDS HARDENING |
-| Геокодер города рождения | NOT IMPLEMENTED |
-| Live Telegram E2E | NOT VERIFIED |
+| Backend tests and compile check | PASS |
+| Frontend build and typecheck | PASS |
+| Docker Compose clean-install smoke test | PASS |
+| Production Compose initialization, API proxy and frontend smoke test | PASS |
 
-## Финальное заключение
+CI does not validate secrets or third-party accounts supplied by an individual operator. The latest additional test commit must also pass CI before treating the current HEAD as fully verified.
 
-LUMIRA — собираемый open-source MVP/демонстрационная платформа, пригодная для дальнейшей разработки и тестового развёртывания. Нельзя честно объявить её полностью готовым production SaaS: реальные платежи и полноценная мухурта отсутствуют, один из астрологических API использует mock-данные, а модель владения таблицами ослабляет заявленную гарантию RLS.
+## Explicit limitations
 
-Это заключение основано на просмотре исходного кода и доступных CI-результатах, а не на независимом penetration test или live-проверке развёрнутого экземпляра.
+1. **Muhurta:** the UI and API provide an hourly Panchanga screening heuristic. This is not a complete classical election: sunrise/sunset, Rahu-kala, interval-specific lagna, tradition settings and a broader set of doshas are not implemented.
+2. **Telegram Stars:** in-app subscription payments are not implemented. Web billing uses Stripe only.
+3. **Astrology depth:** life-area readings use whole-sign houses and basic Mahadasha. House-lord strength, divisional charts and a full classical predictive system are not claimed as complete.
+4. **Geocoding:** Telegram onboarding asks the user to supply coordinates and an IANA timezone after entering a city; automatic geocoding is not implemented.
+5. **External integration tests:** real Stripe checkout/webhooks and a live Telegram bot were not exercised with operator-owned credentials. CI uses test doubles for payment provider behavior.
+6. **Production operations:** before exposing a deployment publicly, configure HTTPS/reverse proxy, backups and restore testing, monitoring/alerting, log retention, and provider secrets. Review the database threat model before claiming resistance to arbitrary SQL execution; RLS context is set by the trusted backend.
+7. **Migrations:** `create_all` initializes new tables but is not a replacement for a reviewed Alembic migration process when evolving existing production schemas.
+
+## Readiness decision
+
+LUMIRA can be described accurately as a **working self-hosted MVP** for profile-based astrology, AI-assisted chat/briefings, preliminary Panchanga screening, and optional Stripe billing. It should not be marketed as a complete classical Jyotish platform or a fully production-hardened SaaS until the limitations above are addressed and the live integrations are tested in a configured deployment.
+
+## Recommended acceptance checklist
+
+- [ ] Latest `main` CI is green after the newest commit.
+- [ ] A clean machine can copy `.env.example`, set unique secrets, and run both Compose modes.
+- [ ] An operator verifies signup/login, profile save, natal chart, life areas, briefing, and Muhurta in a browser.
+- [ ] An operator tests Telegram onboarding and AI responses with a real bot token and provider key.
+- [ ] If charging customers, an operator tests Stripe test-mode checkout, webhook retries, cancellation/portal, and subscription expiry.
+- [ ] Backups are restored in a rehearsal; HTTPS, monitoring and alerting are enabled before public production use.
