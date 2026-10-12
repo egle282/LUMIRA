@@ -35,32 +35,26 @@ async def main() -> None:
         await conn.run_sync(Base.metadata.create_all)
         # Repair databases initialized by older versions where the runtime role
         # owned the tables. Ownership would let it bypass FORCE RLS protections.
-        await conn.execute(text("""
-            DO $$
-            DECLARE obj record;
-            BEGIN
-              FOR obj IN
-                SELECT schemaname, tablename
-                FROM pg_tables
-                WHERE schemaname = 'public'
-              LOOP
-                EXECUTE format(
-                  'ALTER TABLE %I.%I OWNER TO %I',
-                  obj.schemaname, obj.tablename, current_user
-                );
-              END LOOP;
-              FOR obj IN
-                SELECT sequence_schema, sequence_name
-                FROM information_schema.sequences
-                WHERE sequence_schema = 'public'
-              LOOP
-                EXECUTE format(
-                  'ALTER SEQUENCE %I.%I OWNER TO %I',
-                  obj.sequence_schema, obj.sequence_name, current_user
-                );
-              END LOOP;
-            END $$;
+        # Use individual statements instead of a PL/pgSQL DO block. This is
+        # compatible with SQLAlchemy/asyncpg and keeps ownership changes explicit.
+        tables = await conn.execute(text("""
+            SELECT schemaname, tablename
+            FROM pg_tables
+            WHERE schemaname = 'public'
         """))
+        for schema_name, table_name in tables:
+            await conn.execute(text(
+                f'ALTER TABLE "{schema_name}"."{table_name}" OWNER TO CURRENT_USER'
+            ))
+        sequences = await conn.execute(text("""
+            SELECT sequence_schema, sequence_name
+            FROM information_schema.sequences
+            WHERE sequence_schema = 'public'
+        """))
+        for schema_name, sequence_name in sequences:
+            await conn.execute(text(
+                f'ALTER SEQUENCE "{schema_name}"."{sequence_name}" OWNER TO CURRENT_USER'
+            ))
         await conn.execute(text(f'REVOKE CREATE ON SCHEMA public FROM "{app_role}"'))
         await conn.execute(text(
             f'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "{app_role}"'
