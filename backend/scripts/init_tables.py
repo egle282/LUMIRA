@@ -68,6 +68,11 @@ async def main() -> None:
         await conn.execute(text(
             f'GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO "{app_role}"'
         ))
+        # Tenant rows are created during registration, but tenant identifiers
+        # and names are not mutable by the runtime application role.
+        await conn.execute(text(
+            f'REVOKE UPDATE, DELETE ON TABLE tenants FROM "{app_role}"'
+        ))
         await conn.execute(text(
             f'GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{admin_role}"'
         ))
