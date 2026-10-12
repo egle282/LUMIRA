@@ -66,6 +66,7 @@ class AstrologyEngine:
         
         results["positions"]["Ketu"] = {
             "longitude": ketu_lon,
+            "speed": results["positions"]["Rahu"]["speed"],
             "nakshatra_index": ketu_nak,
             "pada": ketu_pada
         }
