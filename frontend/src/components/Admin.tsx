@@ -46,11 +46,11 @@ export function Admin() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-muted)' }}>{t('admin.tokens')}</p>
-            <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)' }}>{stats?.total_tokens_used || 0}</h3>
+            <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)' }}>{stats?.total_ai_messages || 0}</h3>
           </div>
           <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
             <p style={{ color: 'var(--text-muted)' }}>{t('admin.cost')}</p>
-            <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)' }}>${stats?.estimated_cost_usd || '0.00'}</h3>
+            <h3 style={{ fontSize: '2rem', color: 'var(--accent-gold)' }}>{stats?.token_usage_tracking ? `${stats.estimated_cost_usd}` : t('admin.cost') + ': not available'}</h3>
           </div>
         </div>
       </div>
