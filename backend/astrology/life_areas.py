@@ -66,8 +66,12 @@ def _mahadasha(moon_lon: float, birth: datetime, now: datetime) -> str:
     index = int((moon_lon % 360) / width)
     lord = NAK_LORDS[index % 9]
     remaining = DASHA_YEARS[lord] * (1 - (moon_lon % width) / width)
-    elapsed = max(0, (now - birth).total_seconds() / 86400 / 365.2425) + DASHA_YEARS[lord] - remaining
+    elapsed = max(0, (now - birth).total_seconds() / 86400 / 365.2425)
     i = DASHA_SEQ.index(lord)
+    if elapsed < remaining:
+        return lord
+    elapsed -= remaining
+    i = (i + 1) % len(DASHA_SEQ)
     while elapsed >= DASHA_YEARS[DASHA_SEQ[i]]:
         elapsed -= DASHA_YEARS[DASHA_SEQ[i]]
         i = (i + 1) % len(DASHA_SEQ)
