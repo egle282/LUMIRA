@@ -52,32 +52,19 @@ async def test_lum_auth_001_registration_validation():
         assert response.status_code == 422
 
 @pytest.mark.asyncio
-async def test_lum_sec_006_safe_api_errors():
-    # Chat endpoint without token normally returns 401, but we mock it or just call it without token.
-    # Wait, /api/chat requires get_current_user. Let's mock it to bypass auth and force an error.
+async def test_chat_requires_birth_profile_without_leaking_internal_details():
     from backend.api.deps import get_current_user
     from backend.database.models import User
-    
+
     async def mock_get_current_user():
         return User(id="test_user", tenant_id="tenant_1")
-        
+
     app.dependency_overrides[get_current_user] = mock_get_current_user
-    
-    # We will trigger an error by patching orchestrator to fail
-    from unittest.mock import patch
-    import os
-    with patch.dict(os.environ, {"OPENROUTER_API_KEY": "fake_key"}):
-        with patch("backend.api.chat.AIOrchestrator.interpret_chart") as mock_interpret:
-            mock_interpret.side_effect = Exception("Super secret database error: user password hash leaked")
-            
-            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-                response = await ac.post("/api/chat", json={"message": "hello"})
-                # Chat endpoint handles this by returning a 200 with an error reply (due to its design).
-                # But the error message must NOT contain the secret!
-                assert response.status_code == 200
-                data = response.json()
-                assert "внутренняя ошибка" in data["reply"].lower()
-                assert "Код ошибки" in data["reply"]
-                assert "leaked" not in data["reply"]
-                
-    app.dependency_overrides.clear()
+    try:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            response = await ac.post("/api/chat", json={"message": "hello"})
+        assert response.status_code == 400
+        assert "профиль рождения" in response.json()["detail"].lower()
+        assert "password hash" not in response.text.lower()
+    finally:
+        app.dependency_overrides.clear()
