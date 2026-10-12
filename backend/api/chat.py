@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, time, timezone
 from zoneinfo import ZoneInfo
 import logging
 import os
@@ -74,7 +74,12 @@ async def ai_chat_endpoint(
 
     try:
         zone = ZoneInfo(profile.timezone)
-        birth_utc = profile.birth_date.replace(tzinfo=zone).astimezone(timezone.utc)
+        # The schema stores birth date and birth time separately; combining them
+        # is essential for correct ascendant and house calculations.
+        birth_date = profile.birth_date.date() if isinstance(profile.birth_date, datetime) else profile.birth_date
+        birth_clock = time.fromisoformat(profile.birth_time_str)
+        birth_local = datetime.combine(birth_date, birth_clock, tzinfo=zone)
+        birth_utc = birth_local.astimezone(timezone.utc)
         current_utc = datetime.now(timezone.utc)
         natal_chart = engine.calculate_natal_chart(birth_utc, profile.lon, profile.lat)
         transits_chart = engine.calculate_natal_chart(current_utc, profile.lon, profile.lat)
