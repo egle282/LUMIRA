@@ -72,7 +72,9 @@ class AstrologyEngine:
         
         return results
 
-    def calculate_panchanga(self, dt: datetime, lon: float, lat: float) -> dict:
+    def calculate_panchanga(
+        self, dt: datetime, lon: float, lat: float, local_weekday: int | None = None
+    ) -> dict:
         """
         Calculate Panchanga (Tithi, Vara, Nakshatra, Yoga, Karana).
         """
@@ -91,8 +93,16 @@ class AstrologyEngine:
             diff += 360
         tithi = int(diff / 12) + 1
         
-        # Karana: 1 Karana = 6 degrees difference (Half of Tithi)
+        # Karana is one half-tithi (0..59). Seven movable karanas repeat
+        # eight times between the four fixed positions at the cycle boundaries.
         karana = int(diff / 6) + 1
+        movable_karanas = ("Bava", "Balava", "Kaulava", "Taitila", "Gara", "Vanija", "Vishti")
+        if karana == 1:
+            karana_name = "Kimstughna"
+        elif karana <= 57:
+            karana_name = movable_karanas[(karana - 2) % len(movable_karanas)]
+        else:
+            karana_name = {58: "Shakuni", 59: "Chatushpada", 60: "Naga"}[karana]
         
         # Yoga: 1 Yoga = 13 deg 20 min sum of longitudes
         yoga_sum = (sun_lon + moon_lon) % 360
@@ -101,15 +111,19 @@ class AstrologyEngine:
         # Nakshatra
         nakshatra = int(moon_lon / (360 / 27)) + 1
         
-        # Vara (Day of week)
-        vara = (dt.weekday() + 1) % 7 # 0=Monday, 6=Sunday -> Map to Vedic days
+        # Vara depends on the local civil day at the requested location, not UTC.
+        weekday = dt.weekday() if local_weekday is None else local_weekday
+        if not 0 <= weekday <= 6:
+            raise ValueError("local_weekday must be between 0 (Monday) and 6 (Sunday)")
+        vara = (weekday + 1) % 7  # 0=Sunday, 1=Monday, ..., 6=Saturday
         
         return {
             "tithi": tithi,
             "vara": vara,
             "nakshatra": nakshatra,
             "yoga": yoga,
-            "karana": karana
+            "karana": karana,
+            "karana_name": karana_name,
         }
         
 engine = AstrologyEngine()
