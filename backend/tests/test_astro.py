@@ -110,3 +110,19 @@ async def test_chart_with_profile(client: AsyncClient, user_token_headers):
     assert "ayanamsa" in data
     assert "planets" in data
     assert "Sun" in data["planets"]
+
+
+def test_natal_chart_returns_motion_for_rahu_and_ketu():
+    from datetime import datetime, timezone
+    from backend.astrology.engine import engine
+
+    chart = engine.calculate_natal_chart(
+        datetime(1990, 1, 1, 9, 0, tzinfo=timezone.utc),
+        lon=37.6173,
+        lat=55.7558,
+    )
+    assert "speed" in chart["positions"]["Rahu"]
+    assert "speed" in chart["positions"]["Ketu"]
+    assert chart["positions"]["Ketu"]["longitude"] == (
+        chart["positions"]["Rahu"]["longitude"] + 180
+    ) % 360
