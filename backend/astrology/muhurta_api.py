@@ -59,7 +59,7 @@ async def calculate_muhurta(
             "time": local_dt.strftime("%H:%M"),
             "score": score,
             "tithi": tithi,
-            "tithi_name": TITHI_NAMES[(tithi - 1) % 15],
+            "tithi_name": TITHI_NAMES[(tithi - 1) % 30],
             "nakshatra": nakshatra,
             "nakshatra_name": NAKSHATRA_NAMES[(nakshatra - 1) % 27],
             "yoga": panchanga["yoga"],
