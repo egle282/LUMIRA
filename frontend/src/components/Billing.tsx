@@ -80,7 +80,8 @@ export function Billing() {
         Оплата проходит через Stripe при настроенных на сервере ключах и Price ID. Доступ к платному тарифу включается только после подтверждения подписки серверным webhook.
       </p>
       {error && <p role="alert" style={{ color: "#ff8c8c", marginBottom: "1rem" }}>{error}</p>}
-      {status?.plan_name !== "free" && status?.status === "active" && <button className="btn-primary" onClick={handlePortal} disabled={!!checkoutLoading} style={{ marginBottom: "1.5rem" }}>{checkoutLoading === "portal" ? "Открываем управление…" : "Управлять подпиской"}</button>}\n      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
+      {status?.plan_name !== "free" && status?.status === "active" && <button className="btn-primary" onClick={handlePortal} disabled={!!checkoutLoading} style={{ marginBottom: "1.5rem" }}>{checkoutLoading === "portal" ? "Открываем управление…" : "Управлять подпиской"}</button>}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
         <div className="glass-panel" style={{ padding: "1.5rem", textAlign: "center", borderRadius: 8 }}>
           <h3>PRO PLAN</h3>
           <p style={{ margin: "1rem 0" }}>{t("billing.pro_desc")}</p>
