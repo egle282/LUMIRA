@@ -1,16 +1,22 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+import logging
+import os
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+
+from backend.ai.gemini_provider import GeminiProvider
+from backend.ai.openrouter_provider import OpenRouterProvider
+from backend.ai.orchestrator import AIOrchestrator
 from backend.api.deps import get_current_user
+from backend.astrology.engine import engine
+from backend.core.config import settings
 from backend.database.database import get_db
 from backend.database.models import User, Profile
-from backend.ai.orchestrator import AIOrchestrator
-from backend.ai.openrouter_provider import OpenRouterProvider
-from backend.astrology.engine import engine
-from datetime import datetime
-import os
-import logging
 
 logger = logging.getLogger("lumira_backend")
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
@@ -25,70 +31,65 @@ class ChatResponse(BaseModel):
 async def ai_chat_endpoint(
     msg: ChatMessage,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
-    """
-    MVP AI Chat endpoint.
-    Routes to the AI Orchestrator with deterministic data.
-    """
-    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-    if not openrouter_key:
-        return ChatResponse(reply="API-ключ OpenRouter не настроен. Бэкенд запущен в режиме-заглушке.")
+    openrouter_key = os.getenv("OPENROUTER_API_KEY") or settings.OPENROUTER_API_KEY
+    gemini_key = os.getenv("LLM_API_KEY") or settings.LLM_API_KEY
+    if not openrouter_key and not gemini_key:
+        raise HTTPException(status_code=503, detail="Настройте OPENROUTER_API_KEY или LLM_API_KEY для работы AI-чата.")
+
+    result = await db.execute(
+        select(Profile).where(Profile.user_id == current_user.id).limit(1)
+    )
+    profile = result.scalars().first()
+    if profile is None:
+        raise HTTPException(status_code=400, detail="Сначала заполните профиль рождения в настройках.")
 
     try:
-        # Calculate deterministic astrological state for today
-        target_date = datetime.utcnow()
-        
-        stmt = select(Profile).where(Profile.user_id == current_user.id)
-        result = await db.execute(stmt)
-        profile = result.scalars().first()
-
-        lat, lon = 55.75, 37.61
-        natal_chart = None
-        if profile:
-            lat = profile.lat
-            lon = profile.lon
-            natal_chart = engine.calculate_natal_chart(profile.birth_date, lon, lat)
-            
-        panchanga = engine.calculate_panchanga(target_date, lon, lat)
-        transits = engine.calculate_transits(target_date)
-        
-        # Prepare data context
+        zone = ZoneInfo(profile.timezone)
+        birth_utc = profile.birth_date.replace(tzinfo=zone).astimezone(timezone.utc)
+        current_utc = datetime.now(timezone.utc)
+        natal_chart = engine.calculate_natal_chart(birth_utc, profile.lon, profile.lat)
+        transits_chart = engine.calculate_natal_chart(current_utc, profile.lon, profile.lat)
+        panchanga = engine.calculate_panchanga(current_utc, profile.lon, profile.lat)
+        transit_summary = [
+            {
+                "planet": name,
+                "longitude": round(float(data["longitude"]), 4),
+                "sign_index": int(float(data["longitude"]) % 360 // 30),
+                "retrograde": float(data.get("speed", 0)) < 0,
+            }
+            for name, data in transits_chart["positions"].items()
+        ]
         deterministic_data = {
-            "panchanga": panchanga.model_dump(),
-            "transits": [t.model_dump() for t in transits],
+            "natal_chart": natal_chart,
+            "transits": transit_summary,
+            "panchanga": panchanga,
+            "calculated_at_utc": current_utc.isoformat(),
+            "profile_timezone": profile.timezone,
         }
-        if natal_chart:
-            deterministic_data["natal_chart"] = natal_chart
-
-        provider = OpenRouterProvider(api_key=openrouter_key, model_name="meta-llama/llama-3.1-8b-instruct:free")
-        orchestrator = AIOrchestrator(primary_provider=provider)
-        
-        # Generate structured interpretation
+        primary = (
+            OpenRouterProvider(api_key=openrouter_key, model_name="meta-llama/llama-3.1-8b-instruct:free")
+            if openrouter_key else GeminiProvider(api_key=gemini_key)
+        )
+        fallback = GeminiProvider(api_key=gemini_key) if openrouter_key and gemini_key else None
+        orchestrator = AIOrchestrator(primary_provider=primary, fallback_provider=fallback)
         interp = await orchestrator.interpret_chart(
             user_question=msg.message,
             deterministic_data=deterministic_data,
-            memory_context="User is exploring their chart via LUMIRA chat."
+            memory_context="Пользователь общается с LUMIRA и исследует собственную натальную карту.",
         )
-
-        # Format into a readable chat string in Russian
-        reply = f"{interp.summary}\n\n"
+        sections = [interp.summary]
         if interp.opportunities:
-            reply += f"🌟 **Возможности:**\n" + "\n".join([f"- {opt}" for opt in interp.opportunities]) + "\n\n"
+            sections.append("🌟 Возможности:\n" + "\n".join(f"- {item}" for item in interp.opportunities))
         if interp.risks:
-            reply += f"⚠️ **Риски:**\n" + "\n".join([f"- {risk}" for risk in interp.risks]) + "\n\n"
+            sections.append("⚠️ На что обратить внимание:\n" + "\n".join(f"- {item}" for item in interp.risks))
         if interp.recommendations:
-            reply += f"💡 **Рекомендации:**\n" + "\n".join([f"- {rec}" for rec in interp.recommendations])
-            
-        return ChatResponse(reply=reply.strip())
-        
-    except Exception as e:
-        import uuid
-        from fastapi import Request
-        
-        # Try to extract correlation ID from request state if it exists, else generate new
-        # Wait, request is not available in the dependency list. Let's get it.
-        # It's better to just log and raise HTTPException or return generic message.
+            sections.append("💡 Рекомендации:\n" + "\n".join(f"- {item}" for item in interp.recommendations))
+        return ChatResponse(reply="\n\n".join(sections).strip())
+    except HTTPException:
+        raise
+    except Exception as exc:
         error_id = str(uuid.uuid4())
-        logger.error(f"Chat error [ID: {error_id}]: {str(e)}")
-        return ChatResponse(reply=f"Произошла внутренняя ошибка при обращении к оракулу. Обратитесь в поддержку (Код ошибки: {error_id}).")
+        logger.error("Chat error [ID: %s]: %s", error_id, exc, exc_info=True)
+        return ChatResponse(reply=f"Не удалось завершить AI-интерпретацию. Проверьте настройки AI-провайдера или повторите запрос позже. Код ошибки: {error_id}")
