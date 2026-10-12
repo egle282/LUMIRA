@@ -48,6 +48,25 @@ export function Billing() {
     }
   };
 
+  const handlePortal = async () => {
+    setCheckoutLoading("portal");
+    setError("");
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/api/billing/portal`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Не удалось открыть управление подпиской.");
+      if (!data.portal_url) throw new Error("Stripe не вернул ссылку на управление подпиской.");
+      window.location.assign(data.portal_url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка управления подпиской.");
+    } finally {
+      setCheckoutLoading("");
+    }
+  };
+
   if (loading) return <div style={{ color: "var(--text-light)" }}>Загрузка статуса подписки…</div>;
 
   return (
@@ -61,7 +80,7 @@ export function Billing() {
         Оплата проходит через Stripe при настроенных на сервере ключах и Price ID. Доступ к платному тарифу включается только после подтверждения подписки серверным webhook.
       </p>
       {error && <p role="alert" style={{ color: "#ff8c8c", marginBottom: "1rem" }}>{error}</p>}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
+      {status?.plan_name !== "free" && status?.status === "active" && <button className="btn-primary" onClick={handlePortal} disabled={!!checkoutLoading} style={{ marginBottom: "1.5rem" }}>{checkoutLoading === "portal" ? "Открываем управление…" : "Управлять подпиской"}</button>}\n      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.5rem" }}>
         <div className="glass-panel" style={{ padding: "1.5rem", textAlign: "center", borderRadius: 8 }}>
           <h3>PRO PLAN</h3>
           <p style={{ margin: "1rem 0" }}>{t("billing.pro_desc")}</p>
