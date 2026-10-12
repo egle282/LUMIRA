@@ -111,7 +111,7 @@ async def create_customer_portal(
         raise HTTPException(status_code=502, detail="Stripe could not create a customer portal session.") from exc
     if not session.url:
         raise HTTPException(status_code=502, detail="Stripe returned no customer portal URL.")
-    return {"url": session.url}
+    return {"portal_url": session.url}
 
 
 @router.post("/webhook")
