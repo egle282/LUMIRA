@@ -119,11 +119,19 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ### 1. База данных и роли
 
-Убедитесь, что PostgreSQL 15 запущен. Выполните скрипт инициализации ролей:
+Убедитесь, что PostgreSQL 15 запущен, а база `lumira_db` уже создана. Скрипт создаёт роли приложения и администратора внутри существующей базы. Перед запуском загрузите настройки из `.env` в текущую оболочку и явно задайте параметры подключения для `psql`:
 
 ```bash
+set -a
+source .env
+set +a
+export POSTGRES_USER="$DB_USER"
+export POSTGRES_DB="$DB_NAME"
+psql --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" -c 'SELECT 1'
 bash backend/database/init-user-db.sh
 ```
+
+Команда `psql` использует стандартный способ аутентификации PostgreSQL на вашей системе; при необходимости настройте `PGHOST`, `PGPORT` и `PGPASSWORD` перед запуском. Не храните пароль БД в истории команд.
 
 ### 2. Установка и запуск Backend
 
