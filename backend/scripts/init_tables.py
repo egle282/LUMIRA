@@ -18,6 +18,8 @@ async def main() -> None:
     )
     with open(rls_path, "r", encoding="utf-8") as file:
         sql_content = file.read()
+    # Identifier is restricted to a safe PostgreSQL identifier alphabet above.
+    sql_content = sql_content.replace("lumira_admin_role", admin_role)
     sql_clean = re.sub(r"--.*", "", sql_content)
     statements = [stmt.strip() for stmt in sql_clean.split(";") if stmt.strip()]
 
