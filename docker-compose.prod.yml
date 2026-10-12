@@ -88,6 +88,7 @@ services:
         max-file: "5"
 
   bot:
+    profiles: ["telegram"]
     build:
       context: .
       dockerfile: backend/Dockerfile.bot
