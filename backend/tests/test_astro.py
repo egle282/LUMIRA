@@ -19,12 +19,13 @@ async def client(db_session):
 @pytest_asyncio.fixture
 async def user_token_headers(db_session):
     # Create a dummy user
+    import uuid
     from backend.database.models import User, Tenant
-    tenant = Tenant(name="Test Tenant")
+    from backend.database.tenant import set_tenant_context
+    tenant = Tenant(id=str(uuid.uuid4()), name="Test Tenant")
+    await set_tenant_context(db_session, tenant.id)
     db_session.add(tenant)
     await db_session.commit()
-    
-    from backend.database.tenant import set_tenant_context
     await set_tenant_context(db_session, tenant.id)
     
     user = User(tenant_id=tenant.id, email="test@example.com", role="user")
