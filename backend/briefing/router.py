@@ -24,4 +24,7 @@ async def get_daily_briefing(
         date_obj = datetime.now(timezone.utc)
         
     service = BriefingService(user_id=current_user.id)
-    return await service.generate_daily_briefing(target_date=date_obj)
+    try:
+        return await service.generate_daily_briefing(target_date=date_obj)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
