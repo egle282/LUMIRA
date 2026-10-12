@@ -42,10 +42,11 @@ async def cmd_start(message: Message, state: FSMContext):
 
     if user is None:
         async with AsyncSessionLocal() as db:
-            tenant = Tenant(name=f"telegram_{tg_id}")
+            # Set tenant context before INSERT to satisfy tenant-table RLS.
+            tenant = Tenant(id=str(uuid.uuid4()), name=f"telegram_{tg_id}")
+            await set_tenant_context(db, str(tenant.id))
             db.add(tenant)
             await db.flush()
-            await set_tenant_context(db, str(tenant.id))
             user = User(
                 id=str(uuid.uuid4()),
                 tenant_id=tenant.id,
