@@ -47,6 +47,10 @@ async def ai_chat_endpoint(
         raise HTTPException(status_code=400, detail="Сначала заполните профиль рождения в настройках.")
 
     now = datetime.now(timezone.utc)
+    try:
+        profile_zone = ZoneInfo(profile.timezone)
+    except Exception as exc:
+        raise HTTPException(status_code=422, detail="В профиле указан некорректный часовой пояс.") from exc
     subscription_result = await db.execute(
         select(Subscription).where(Subscription.user_id == current_user.id)
         .order_by(Subscription.created_at.desc()).limit(1)
@@ -57,7 +61,11 @@ async def ai_chat_endpoint(
         if subscription.current_period_end is None or subscription.current_period_end > now:
             plan_name = subscription.plan_name.lower()
     daily_limit = DAILY_AI_LIMITS.get(plan_name, DAILY_AI_LIMITS["free"])
-    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Daily quotas follow the user's profile timezone, including daylight-saving
+    # transitions, rather than resetting at midnight UTC for everyone.
+    day_start = now.astimezone(profile_zone).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ).astimezone(timezone.utc)
     usage_result = await db.execute(
         select(func.count()).select_from(InteractionLog).where(
             InteractionLog.user_id == current_user.id,
