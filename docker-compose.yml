@@ -7,6 +7,10 @@ services:
       POSTGRES_USER: ${DB_USER:-lumira_admin}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: ${DB_NAME:-lumira_db}
+      APP_DB_USER: ${APP_DB_USER:-lumira_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-lumira_admin_role}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:?Set ADMIN_DB_PASSWORD in .env}
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
