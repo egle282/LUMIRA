@@ -43,6 +43,9 @@ PLANS: Dict[PlanType, SubscriptionPlan] = {
     )
 }
 
+DAILY_AI_LIMITS = {"free": 5, "pro": 50, "premium": 9999}
+
+
 class UsageTracker:
     """
     Tracks and limits user usage based on their active subscription plan.
@@ -50,9 +53,9 @@ class UsageTracker:
     """
     
     def check_ai_message_limit(self, user_id: str, plan: PlanType, current_daily_usage: int) -> bool:
-        plan_limits = PLANS[plan]
+        plan_limits = PLANS.get(plan, PLANS[PlanType.FREE])
         return current_daily_usage < plan_limits.max_daily_ai_messages
 
     def record_ai_message(self, user_id: str):
-        # Increment daily counter in DB/Redis
-        pass
+        """Usage is persisted as InteractionLog rows by the chat API."""
+        return None
