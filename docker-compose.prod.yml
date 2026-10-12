@@ -44,6 +44,7 @@ services:
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}@db/lumira_prod
+      - ADMIN_DB_USER=${ADMIN_DB_USER:-lumira_admin_role}
     depends_on:
       db:
         condition: service_healthy
