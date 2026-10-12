@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n';
 
@@ -8,7 +9,7 @@ export function Billing() {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/billing/status', {
+    fetch(`${getApiBaseUrl()}/api/billing/status`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -23,7 +24,7 @@ export function Billing() {
   }, [token]);
 
   const handleUpgrade = (plan: string) => {
-    fetch(`http://localhost:8000/api/billing/upgrade?plan_name=${plan}`, {
+    fetch(`${getApiBaseUrl()}/api/billing/upgrade?plan_name=${plan}`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
     })

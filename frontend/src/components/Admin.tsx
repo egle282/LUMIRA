@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n';
 
@@ -11,7 +12,7 @@ export function Admin() {
 
   useEffect(() => {
     // Fetch stats
-    fetch('http://localhost:8000/api/admin/metrics/ai-cost', {
+    fetch(`${getApiBaseUrl()}/api/admin/metrics/ai-cost`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {
@@ -22,7 +23,7 @@ export function Admin() {
       .catch(err => setError(err.message));
 
     // Fetch users
-    fetch('http://localhost:8000/api/admin/users', {
+    fetch(`${getApiBaseUrl()}/api/admin/users`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {

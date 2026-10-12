@@ -21,7 +21,7 @@ async def test_get_current_user_injects_rls_context():
     mock_result.scalars().first.return_value = mock_user
     mock_db.execute.return_value = mock_result
     
-    valid_token = jwt.encode({"sub": "user_123"}, settings.JWT_SECRET, algorithm="HS256")
+    valid_token = jwt.encode({"sub": "user_123", "tenant_id": "tenant_abc"}, settings.JWT_SECRET, algorithm="HS256")
     
     with patch("backend.api.deps.set_tenant_context", new_callable=AsyncMock) as mock_set_tenant_context:
         user = await get_current_user(token=valid_token, db=mock_db)

@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n';
 
@@ -18,7 +19,7 @@ export function Settings() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:8000/api/profile/me', {
+        const res = await fetch(`${getApiBaseUrl()}/api/profile/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (res.ok) {
@@ -45,7 +46,7 @@ export function Settings() {
     setStatus('Сохранение...');
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8000/api/profile/me', {
+      const res = await fetch(`${getApiBaseUrl()}/api/profile/me`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

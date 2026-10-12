@@ -83,5 +83,12 @@ async def ai_chat_endpoint(
         return ChatResponse(reply=reply.strip())
         
     except Exception as e:
-        logger.error(f"Chat error: {e}")
-        return ChatResponse(reply=f"Произошла ошибка при обращении к оракулу: {str(e)}")
+        import uuid
+        from fastapi import Request
+        
+        # Try to extract correlation ID from request state if it exists, else generate new
+        # Wait, request is not available in the dependency list. Let's get it.
+        # It's better to just log and raise HTTPException or return generic message.
+        error_id = str(uuid.uuid4())
+        logger.error(f"Chat error [ID: {error_id}]: {str(e)}")
+        return ChatResponse(reply=f"Произошла внутренняя ошибка при обращении к оракулу. Обратитесь в поддержку (Код ошибки: {error_id}).")

@@ -24,10 +24,14 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
-        if user_id is None:
+        tenant_id: str = payload.get("tenant_id")
+        if user_id is None or tenant_id is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
+
+    # Enforce RLS for this transaction BEFORE querying the user table
+    await set_tenant_context(db, tenant_id)
 
     stmt = select(User).where(User.id == user_id)
     result = await db.execute(stmt)
@@ -35,9 +39,5 @@ async def get_current_user(
     
     if user is None:
         raise credentials_exception
-        
-    # Enforce RLS for this transaction/session
-    if user.tenant_id:
-        await set_tenant_context(db, user.tenant_id)
         
     return user

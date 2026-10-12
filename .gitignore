@@ -53,13 +53,33 @@ coverage/
 project_dump.txt
 project_dump.py
 
-# Internal / AI Agent Artifacts
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Internal / AI Agent Artifacts & Audits
 .antigravity/
 obsidian/
 docPRO/
 AI_PROJECT_PACK-integrated-work/
 APES-26-PROJECT-FACTORY-v3.0.0/
 Audit.md
+AI_PLAN.md
 MASTER BUILD PROMPT.md
 Roade_map.txt
 create_tables.py
+generate_docs_v3.py
+docs/audit/
+PHASE_*_REPORT.md
+RELEASE_READINESS_REPORT*.md
+RENDER_PREDEPLOY_GATE.md
+Render Pre-deploy Gate.md
+FINAL_PREDEPLOY_CHECK.md
+FINAL RELEASE TO GITHUB.md
+LUMIRA_FULL_AUDIT_FIX_SPEC.md
+LUMIRA_INDEPENDENT_AUDIT.md
+TZ Lumira*.md

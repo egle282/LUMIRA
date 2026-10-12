@@ -1,14 +1,30 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import model_validator
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "LUMIRA"
     DATABASE_URL: str
+    ADMIN_DATABASE_URL: str | None = None
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
-    JWT_SECRET: str = "default_secret"
+    JWT_SECRET: str
     ADMIN_EMAIL: str | None = None
     ADMIN_PASSWORD: str | None = None
+    ALLOWED_ORIGINS: list[str] | str = ["http://localhost:5173", "http://localhost:3000"]
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
+
+    @model_validator(mode='after')
+    def validate_security_settings(self):
+        if self.ENVIRONMENT == "production":
+            if not self.JWT_SECRET or len(self.JWT_SECRET) < 32 or self.JWT_SECRET == "your_jwt_secret_here" or self.JWT_SECRET == "default_secret":
+                raise ValueError("A strong JWT_SECRET (at least 32 chars) must be provided in production")
+        return self
+
+    @property
+    def cors_origins(self) -> list[str]:
+        if isinstance(self.ALLOWED_ORIGINS, str):
+            return [x.strip() for x in self.ALLOWED_ORIGINS.split(",") if x.strip()]
+        return self.ALLOWED_ORIGINS
 
 settings = Settings()

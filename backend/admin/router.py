@@ -1,11 +1,15 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import Dict, Any, List
 
-from backend.api.deps import get_current_user, get_db
+from backend.api.deps import get_current_user
+from backend.database.database import get_admin_db
 from backend.database.models import User, Profile, Subscription, InteractionLog
+
+logger = logging.getLogger(__name__)
 
 admin_router = APIRouter(prefix="/api/admin", tags=["Admin"])
 
@@ -15,7 +19,8 @@ def require_admin(current_user: User = Depends(get_current_user)):
     return current_user
 
 @admin_router.get("/metrics/ai-cost")
-async def get_ai_costs(admin_user: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+async def get_ai_costs(admin_user: User = Depends(require_admin), db: AsyncSession = Depends(get_admin_db)):
+    logger.info(f"Admin action by user {admin_user.id}: Accessed AI cost metrics")
     total_tokens = await db.scalar(select(func.sum(InteractionLog.tokens_used))) or 0
     # Assuming $0.01 per 1000 tokens for calculation
     cost = (total_tokens / 1000) * 0.01
@@ -26,7 +31,8 @@ async def get_ai_costs(admin_user: User = Depends(require_admin), db: AsyncSessi
     }
 
 @admin_router.get("/users")
-async def list_users(admin_user: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+async def list_users(admin_user: User = Depends(require_admin), db: AsyncSession = Depends(get_admin_db)):
+    logger.info(f"Admin action by user {admin_user.id}: Listed all users")
     result = await db.execute(select(User.id, User.email, User.role, User.created_at))
     users = result.all()
     
@@ -41,6 +47,7 @@ async def list_users(admin_user: User = Depends(require_admin), db: AsyncSession
 
 @admin_router.post("/feature-flags")
 async def toggle_feature(feature_name: str, enabled: bool, admin_user: User = Depends(require_admin)):
+    logger.info(f"Admin action by user {admin_user.id}: Toggled feature flag '{feature_name}' to {enabled}")
     # Mock feature flag DB storage
     return {"status": "success", "feature": feature_name, "state": "enabled" if enabled else "disabled"}
 

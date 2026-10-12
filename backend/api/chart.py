@@ -22,13 +22,27 @@ async def get_natal_chart(
     profile = result.scalars().first()
     
     if not profile:
-        return {"error": "Профиль не заполнен. Пожалуйста, укажите дату рождения в Настройках."}
+        raise HTTPException(status_code=400, detail="Профиль не заполнен. Пожалуйста, укажите дату рождения в Настройках.")
 
-    birth_date = profile.birth_date
+    import zoneinfo
+    
+    # The database stores naive datetime representing local time
+    local_dt = profile.birth_date
+    user_tz = zoneinfo.ZoneInfo(profile.timezone)
+    
+    # Localize the naive datetime
+    localized_dt = local_dt.replace(tzinfo=user_tz)
+    
+    # Convert to UTC
+    utc_dt = localized_dt.astimezone(zoneinfo.ZoneInfo("UTC"))
+    
+    # Swiss Ephemeris engine assumes UTC datetime, but it uses dt.year/month/day/hour/minute/second directly.
+    # Therefore, we pass the utc_dt which has the correct UTC values.
+    
     lon = profile.lon
     lat = profile.lat
 
-    results = engine.calculate_natal_chart(birth_date, lon, lat)
+    results = engine.calculate_natal_chart(utc_dt, lon, lat)
     
     # We will format it for frontend consumption.
     # Map signs: 1 Rasi (Zodiac sign) = 30 degrees

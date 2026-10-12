@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useState } from 'react';
 import { useLanguage } from '../i18n';
 
@@ -18,7 +19,7 @@ export function Auth({ onLogin }: { onLogin: (token: string) => void }) {
       : new URLSearchParams({ username: email, password });
       
     try {
-      const response = await fetch(`http://localhost:8000${url}`, {
+      const response = await fetch(`${getApiBaseUrl()}${url}`, {
         method: 'POST',
         headers: isRegister 
           ? { 'Content-Type': 'application/json' }

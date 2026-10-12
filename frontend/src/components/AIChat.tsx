@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useState } from 'react';
 import { Send, Info, X } from 'lucide-react';
 
@@ -19,7 +20,7 @@ export function AIChat() {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8000/api/chat', {
+      const res = await fetch(`${getApiBaseUrl()}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

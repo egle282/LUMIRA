@@ -33,35 +33,24 @@ async def get_billing_status(current_user: User = Depends(get_current_user), db:
         "current_period_end": subscription.current_period_end
     }
 
-@router.post("/upgrade", response_model=SubscriptionUpdateResponse)
+@router.post("/upgrade")
 async def upgrade_subscription(
     plan_name: str,
     current_user: User = Depends(get_current_user), 
     db: AsyncSession = Depends(get_db)
 ):
-    if plan_name not in ["pro", "premium"]:
-        raise HTTPException(status_code=400, detail="Invalid plan name")
-        
-    result = await db.execute(select(Subscription).where(Subscription.user_id == current_user.id))
-    subscription = result.scalar_one_or_none()
-    
-    if not subscription:
-        subscription = Subscription(
-            id=str(uuid.uuid4()),
-            tenant_id=current_user.tenant_id,
-            user_id=current_user.id,
-            plan_name=plan_name,
-            status="active"
-        )
-        db.add(subscription)
-    else:
-        subscription.plan_name = plan_name
-        subscription.status = "active"
-        
-    await db.commit()
-    
-    return SubscriptionUpdateResponse(
-        status="success",
-        plan_name=plan_name,
-        message=f"Successfully upgraded to {plan_name.capitalize()} plan."
+    # LUM-BILL-001: Prevent billing activation bypass.
+    # Billing must be implemented via a secure provider with webhook verification.
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Billing provider is unconfigured. Cannot activate paid plans without verified provider evidence."
+    )
+
+@router.post("/webhook")
+async def billing_webhook():
+    # Placeholder for billing provider webhook.
+    # Must validate signature, check replay, and safely update subscription state.
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Billing provider is unconfigured."
     )

@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useEffect, useState } from 'react';
 import { Compass } from 'lucide-react';
 import { useLanguage } from '../i18n';
@@ -37,7 +38,7 @@ export function MyChart() {
     const fetchChart = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:8000/api/chart/natal', {
+        const res = await fetch(`${getApiBaseUrl()}/api/chart/natal`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

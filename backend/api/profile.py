@@ -11,13 +11,23 @@ from backend.database.models import User, Profile
 
 router = APIRouter(prefix="/profile", tags=["Profile"])
 
+from pydantic import BaseModel, Field, field_validator
+import zoneinfo
+
 class ProfileCreateUpdate(BaseModel):
     name: str
     birth_date: str  # YYYY-MM-DD format
     birth_time_str: str # HH:MM format
-    lat: float
-    lon: float
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
     timezone: str
+
+    @field_validator('timezone')
+    @classmethod
+    def validate_timezone(cls, v: str) -> str:
+        if v not in zoneinfo.available_timezones():
+            raise ValueError(f"Invalid timezone: {v}")
+        return v
 
 class ProfileResponse(BaseModel):
     id: str
@@ -79,5 +89,4 @@ async def update_my_profile(
         db.add(profile)
 
     await db.commit()
-    await db.refresh(profile)
     return profile

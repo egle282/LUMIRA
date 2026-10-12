@@ -9,7 +9,7 @@ async def set_tenant_context(session: AsyncSession, tenant_id: str):
     This activates the Row-Level Security (RLS) policies for the transaction.
     """
     await session.execute(
-        text("SELECT set_config('app.current_tenant', :tenant_id, false)"),
+        text("SELECT set_config('app.current_tenant', :tenant_id, true)"),
         {"tenant_id": tenant_id}
     )
 

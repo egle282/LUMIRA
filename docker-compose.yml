@@ -11,6 +11,7 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
 
   redis:
     image: redis:7-alpine
@@ -25,11 +26,16 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-lumira}:${DB_PASSWORD:-lumira_password}@db/${DB_NAME:-lumira_db}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:-lumira_app_password}@db/${DB_NAME:-lumira_db}
+      - ADMIN_DATABASE_URL=postgresql+asyncpg://${ADMIN_DB_USER:-lumira_admin_role}:${ADMIN_DB_PASSWORD:-lumira_admin_password}@db/${DB_NAME:-lumira_db}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-lumira_dev_jwt_secret_change_in_production}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
     depends_on:
       - db
       - redis
@@ -41,7 +47,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile.bot
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-lumira}:${DB_PASSWORD:-lumira_password}@db/${DB_NAME:-lumira_db}
+      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:-lumira_app_password}@db/${DB_NAME:-lumira_db}
       - REDIS_URL=redis://:${REDIS_PASSWORD:-dev_redis_password}@redis:6379/0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}

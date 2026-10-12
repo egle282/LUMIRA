@@ -16,6 +16,17 @@ from backend.core.config import settings
 from backend.database.database import AsyncSessionLocal
 from backend.database.models import User, Tenant
 from sqlalchemy.future import select
+from sqlalchemy import text
+from fastapi import Depends
+import time
+import json
+import uuid
+import logging
+from fastapi.responses import JSONResponse
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+
+logger = logging.getLogger("lumira.api")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,7 +57,7 @@ app = FastAPI(title="LUMIRA API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,7 +71,55 @@ app.include_router(astrology_router, prefix="/api")
 app.include_router(briefing_router, prefix="/api")
 app.include_router(chart_router, prefix="/api")
 app.include_router(profile_router, prefix="/api")
+app.include_router(billing_router, prefix="/api")
+
+class TelemetryMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        correlation_id = request.headers.get("X-Correlation-ID")
+        # Validate correlation_id format or length to prevent log forging
+        if not correlation_id or len(correlation_id) > 50 or not correlation_id.isascii():
+            correlation_id = str(uuid.uuid4())
+        
+        request.state.correlation_id = correlation_id
+        
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        
+        log_data = {
+            "correlation_id": correlation_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "latency_ms": round(process_time * 1000, 2)
+        }
+        logger.info(json.dumps(log_data))
+        
+        response.headers["X-Correlation-ID"] = correlation_id
+        return response
+
+app.add_middleware(TelemetryMiddleware)
+
+from backend.api.deps import get_db
 
 @app.get("/api/health")
-async def health_check():
-    return {"status": "ok"}
+async def health_check(db = Depends(get_db)):
+    try:
+        await db.execute(text("SELECT 1"))
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Health check DB failure: {e}")
+        return JSONResponse(status_code=503, content={"status": "error", "message": "Service unavailable"})
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    correlation_id = getattr(request.state, "correlation_id", str(uuid.uuid4()))
+    logger.error(f"Unhandled exception [ID: {correlation_id}]: {exc}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal Server Error",
+            "message": "An unexpected error occurred. Please contact support.",
+            "correlation_id": correlation_id
+        }
+    )

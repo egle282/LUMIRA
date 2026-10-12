@@ -1,4 +1,4 @@
-name: LUMIRA CI/CD Pipeline
+name: LUMIRA CI Pipeline
 
 on:
   push:
@@ -7,86 +7,82 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
-    name: Run Tests
+  backend-tests:
+    name: Backend Tests & Compile Check
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: lumira
+          POSTGRES_PASSWORD: lumira_password
+          POSTGRES_DB: lumira_db
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
 
-      - name: Build backend for testing
+      - name: Install dependencies
         run: |
-          docker compose -f docker-compose.yml build backend
-          
-      - name: Run E2E Tests
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio anyio httpx
+
+      - name: Python Compile Check
         run: |
-          # Start dependencies
-          docker compose -f docker-compose.yml up -d db redis
-          
-          # Wait for DB to be ready
-          sleep 10
-          
-          # Run tests inside backend container
-          docker compose -f docker-compose.yml run backend pytest tests/
+          python -m compileall backend/
 
-  build-and-push:
-    name: Build & Push Docker Images
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-      - name: Build and push Backend
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./backend/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lumira-backend:latest
-          
-      - name: Build and push Bot
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./backend/Dockerfile.bot
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lumira-bot:latest
-          
-      - name: Build and push Frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile.prod
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lumira-frontend:latest
+      - name: Run Pytest Suite
+        env:
+          DATABASE_URL: postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db
+          JWT_SECRET: lumira_test_secret_32_characters_long_min!
+          PYTHONPATH: .
+        run: |
+          pytest backend/tests/ tests/
 
-  deploy:
-    name: Deploy to Production
-    needs: build-and-push
+  frontend-build:
+    name: Frontend Build & Typecheck
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy to Server via SSH
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /opt/lumira
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build

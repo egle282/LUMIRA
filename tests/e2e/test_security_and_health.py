@@ -5,6 +5,8 @@ from backend.main import app # Assuming FastAPI app instance is here
 @pytest.mark.asyncio
 async def test_health_check():
     """Verify that the production health check is responsive."""
+    from backend.database.database import engine
+    await engine.dispose()
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.get("/api/health")
     assert response.status_code == 200

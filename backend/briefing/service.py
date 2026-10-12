@@ -94,6 +94,7 @@ class BriefingService:
                 focus_areas = ai_output.focus_areas
                 recommendations = ai_output.recommendations
                 cautions = ai_output.cautions
+                is_mock = False
             except Exception as e:
                 logger.error(f"AI Briefing generation failed: {e}")
                 # Fallback to mock
@@ -101,12 +102,14 @@ class BriefingService:
                 focus_areas = ["Семья", "Обучение", "Духовность"]
                 recommendations = ["Проведите время с семьей."]
                 cautions = ["Избегайте споров."]
+                is_mock = True
         else:
             # Mock fallback if no API key
             ai_text = f"Сегодня {planet_names_ru['Moon']} проходит через ваш {transits[0].house_transiting}-й дом в знаке {transits[0].current_sign}. Это смещает фокус на дом, семью и эмоциональное благополучие. Активна накшатра {nakshatras[n_idx]} — отличный день для обучения, духовных практик и консультаций с наставниками."
             focus_areas = ["Семья", "Обучение", "Духовность"]
             recommendations = ["Проведите время с семьей или займитесь обустройством дома.", "Начните новый обучающий курс или почитайте развивающую книгу."]
             cautions = ["Избегайте излишне логичных споров с близкими, проявите эмпатию."]
+            is_mock = True
         
         return DailyBriefing(
             date=target_date,
@@ -116,5 +119,6 @@ class BriefingService:
             focus_life_areas=focus_areas,
             ai_interpretation=ai_text,
             recommendations=recommendations,
-            cautions=cautions
+            cautions=cautions,
+            is_mock=is_mock
         )

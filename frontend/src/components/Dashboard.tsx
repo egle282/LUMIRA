@@ -1,3 +1,4 @@
+import { getApiBaseUrl } from "../api";
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../i18n';
 
@@ -15,8 +16,8 @@ export function Dashboard() {
         const headers = { 'Authorization': `Bearer ${token}` };
         
         const [briefingRes, profileRes] = await Promise.all([
-          fetch('http://localhost:8000/api/briefing/daily', { headers }),
-          fetch('http://localhost:8000/api/profile/me', { headers })
+          fetch(`${getApiBaseUrl()}/api/briefing/daily`, { headers }),
+          fetch(`${getApiBaseUrl()}/api/profile/me`, { headers })
         ]);
 
         if (briefingRes.ok) {
@@ -69,6 +70,11 @@ export function Dashboard() {
           {/* Daily Briefing Card */}
         <section className="glass-panel" style={{ padding: '2rem' }}>
           <h3 style={{ marginBottom: '1rem', color: 'var(--text-muted)' }}>{t('dash.briefing')}</h3>
+          {briefing?.is_mock && (
+            <div style={{ padding: '1rem', marginBottom: '1rem', background: 'rgba(255, 107, 107, 0.1)', borderLeft: '4px solid #ff6b6b', borderRadius: '4px' }}>
+              <strong style={{ color: '#ff6b6b' }}>Внимание:</strong> ИИ-ассистент временно недоступен. Показан базовый астрологический прогноз.
+            </div>
+          )}
           <p style={{ fontSize: '1.2rem', lineHeight: '1.6', fontWeight: 300 }}>
             {briefing?.ai_interpretation || t('dash.no_interp')}
           </p>
