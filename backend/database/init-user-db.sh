@@ -5,9 +5,9 @@ set -e
 # This ensures that RLS (Row Level Security) is strictly enforced and cannot be bypassed.
 
 APP_DB_USER=${APP_DB_USER:-lumira_app}
-APP_DB_PASSWORD=${APP_DB_PASSWORD:-lumira_app_password}
+APP_DB_PASSWORD=${APP_DB_PASSWORD:?APP_DB_PASSWORD must be set}
 ADMIN_DB_USER=${ADMIN_DB_USER:-lumira_admin_role}
-ADMIN_DB_PASSWORD=${ADMIN_DB_PASSWORD:-lumira_admin_password}
+ADMIN_DB_PASSWORD=${ADMIN_DB_PASSWORD:?ADMIN_DB_PASSWORD must be set}
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     DO \$\$

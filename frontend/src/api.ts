@@ -1,13 +1,13 @@
 export const getApiBaseUrl = (): string => {
   const meta = import.meta as any;
   const baseUrl = meta.env.VITE_API_BASE_URL;
-  if (!baseUrl) {
-    if (meta.env.PROD) {
-      throw new Error("VITE_API_BASE_URL is not configured for production environment.");
-    }
-    return "http://localhost:8000"; // fallback for local dev
-  }
-  return baseUrl;
+  if (baseUrl) return baseUrl.replace(/\/$/, "");
+
+  // In production, nginx serves the SPA and proxies /api to the backend.
+  // An empty base URL keeps API requests on the same origin.
+  if (meta.env.PROD) return "";
+
+  return "http://localhost:8000";
 };
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
