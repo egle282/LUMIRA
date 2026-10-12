@@ -69,7 +69,7 @@ class BriefingService:
             vara=VARAS[local_target.weekday()],
             nakshatra=NAKSHATRAS[(nakshatra - 1) % 27],
             yoga=YOGAS[(yoga - 1) % 27],
-            karana=f"Карана #{panchanga_data['karana']}",
+            karana=panchanga_data["karana_name"],
             auspiciousness_score=score,
         )
 
