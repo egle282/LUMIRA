@@ -4,10 +4,19 @@
 ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenants FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS tenant_isolation_tenants_policy ON tenants;
-CREATE POLICY tenant_isolation_tenants_policy ON tenants
-  USING (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role')
-  -- Tenant creation is needed by self-service registration; USING still prevents cross-tenant reads and mutations.
+DROP POLICY IF EXISTS tenant_select_policy ON tenants;
+DROP POLICY IF EXISTS tenant_insert_policy ON tenants;
+DROP POLICY IF EXISTS tenant_update_policy ON tenants;
+DROP POLICY IF EXISTS tenant_delete_policy ON tenants;
+CREATE POLICY tenant_select_policy ON tenants FOR SELECT
+  USING (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role');
+CREATE POLICY tenant_insert_policy ON tenants FOR INSERT
   WITH CHECK (TRUE);
+CREATE POLICY tenant_update_policy ON tenants FOR UPDATE
+  USING (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role')
+  WITH CHECK (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role');
+CREATE POLICY tenant_delete_policy ON tenants FOR DELETE
+  USING (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role');
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
