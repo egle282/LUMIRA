@@ -47,8 +47,8 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - ADMIN_EMAIL=${ADMIN_EMAIL}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
     depends_on:
       db:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
     restart: always
     environment:
       - ENV=production
-      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:-lumira_app_password}@db/lumira_prod
+      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}@db/lumira_prod
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
