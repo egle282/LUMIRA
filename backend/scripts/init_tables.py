@@ -59,7 +59,7 @@ async def main() -> None:
                   obj.sequence_schema, obj.sequence_name, current_user
                 );
               END LOOP;
-            END $;
+            END $$;
         """))
         await conn.execute(text(f'REVOKE CREATE ON SCHEMA public FROM "{app_role}"'))
         await conn.execute(text(
