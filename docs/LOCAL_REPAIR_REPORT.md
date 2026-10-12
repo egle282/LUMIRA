@@ -1,8 +1,8 @@
 # Отчёт о локальном восстановлении окружения LUMIRA (Local Repair Report)
 
-**Дата:** 12 октября 2026  
-**Окружение:** macOS (Apple Silicon), Docker Compose, PostgreSQL 15 (Docker), Redis 7 (Docker)  
-**Ветка:** `main`  
+**Дата:** 12 октября 2026
+**Окружение:** macOS (Apple Silicon), Docker Compose, PostgreSQL 15 (Docker), Redis 7 (Docker)
+**Ветка:** `main`
 **Статус готовности:** **ГОТОВО** (локальный MVP полностью запущен, проверен и протестирован)
 
 ---

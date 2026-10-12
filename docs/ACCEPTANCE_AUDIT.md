@@ -1,8 +1,8 @@
 # Независимый приёмочный аудит LUMIRA (Acceptance Audit)
 
-**Дата проведения:** 12 октября 2026  
-**Окружение:** macOS (Apple Silicon), Docker Compose, PostgreSQL 15, Redis 7, Python 3.14 (.venv), Node.js (Vite)  
-**Коммит HEAD:** `cbe9da2` (`docs: record successful full-stack CI verification`)  
+**Дата проведения:** 12 октября 2026
+**Окружение:** macOS (Apple Silicon), Docker Compose, PostgreSQL 15, Redis 7, Python 3.14 (.venv), Node.js (Vite)
+**Коммит HEAD:** `cbe9da2` (`docs: record successful full-stack CI verification`)
 **Итоговый статус приёмки:** **ГОТОВО** (все 6 обязательных критериев подтверждены реальными командами и логами)
 
 ---
