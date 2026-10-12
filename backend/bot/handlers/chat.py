@@ -1,75 +1,81 @@
-from aiogram import Router, F
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import asyncio
+
+from aiogram import F, Router
 from aiogram.types import Message
-from backend.core.logger import logger
-from backend.database.database import AsyncSessionLocal
 from sqlalchemy import select
-from backend.database.models import User, Profile
+
 from backend.ai.gemini_provider import GeminiProvider
 from backend.ai.orchestrator import AIOrchestrator
 from backend.astrology.engine import engine
 from backend.core.config import settings
-from datetime import datetime
+from backend.core.logger import logger
+from backend.database.database import AdminAsyncSessionLocal, AsyncSessionLocal
+from backend.database.models import Profile, User
+from backend.database.tenant import set_tenant_context
 
 router = Router()
 
+
+async def find_telegram_user(telegram_id: str) -> User | None:
+    if AdminAsyncSessionLocal is None:
+        raise RuntimeError("ADMIN_DATABASE_URL is required for Telegram account lookup")
+    async with AdminAsyncSessionLocal() as db:
+        result = await db.execute(select(User).where(User.telegram_id == telegram_id))
+        return result.scalars().first()
+
+
 @router.message(F.text)
 async def handle_user_message(message: Message):
+    if not message.text:
+        return
     logger.info("Received chat message", tg_id=message.from_user.id)
-    
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
-    
+
     try:
+        user = await find_telegram_user(str(message.from_user.id))
+        if user is None:
+            await message.answer("Для начала выполните /start и настройте профиль.")
+            return
+
         async with AsyncSessionLocal() as db:
-            tg_id_str = str(message.from_user.id)
-            user_res = await db.execute(select(User).where(User.telegram_id == tg_id_str))
-            user = user_res.scalar_one_or_none()
-            
-            if not user:
-                await message.answer("Please use /start to set up your profile first.")
+            await set_tenant_context(db, str(user.tenant_id))
+            result = await db.execute(select(Profile).where(Profile.user_id == user.id))
+            profile = result.scalars().first()
+            if profile is None:
+                await message.answer("Профиль не заполнен. Выполните /start.")
                 return
-                
-            prof_res = await db.execute(select(Profile).where(Profile.user_id == user.id))
-            profile = prof_res.scalar_one_or_none()
-            
-            if not profile:
-                await message.answer("Your profile is incomplete. Please use /start.")
-                return
-                
-            # Compute astrology data
-            if profile.birth_time_str:
-                time_parts = profile.birth_time_str.split(':')
-                hour, minute = int(time_parts[0]), int(time_parts[1])
-            else:
-                hour, minute = 12, 0
-                
-            dt = datetime(
-                profile.birth_date.year,
-                profile.birth_date.month,
-                profile.birth_date.day,
-                hour,
-                minute
-            )
-            
-            chart_data = engine.calculate_natal_chart(
-                dt=dt,
-                lon=profile.lon or 0.0,
-                lat=profile.lat or 0.0
-            )
-            
-            provider = GeminiProvider(api_key=settings.LLM_API_KEY)
-            orchestrator = AIOrchestrator(primary_provider=provider)
-            
-            response = await orchestrator.interpret_chart(
-                user_question=message.text,
-                deterministic_data=chart_data,
-                memory_context="No prior memory in MVP."
-            )
-            
-            response_text = f"✨ <i>I am interpreting your chart for:</i>\n\n«{message.text}»\n\n"
-            response_text += response.interpretation
-            
-            await message.answer(response_text)
-            
-    except Exception as e:
-        logger.error("Error processing AI chat", error=str(e))
-        await message.answer("I am sorry, my connection to the stars is currently disrupted. Please try again later. 🌌")
+            # Copy scalar fields before closing the session.
+            birth_date = profile.birth_date
+            birth_time_str = profile.birth_time_str
+            lat, lon, timezone = profile.lat, profile.lon, profile.timezone
+
+        hour, minute = map(int, birth_time_str.split(":"))
+        local_dt = datetime(
+            birth_date.year, birth_date.month, birth_date.day, hour, minute,
+            tzinfo=ZoneInfo(timezone),
+        )
+        chart_data = await asyncio.to_thread(
+            engine.calculate_natal_chart,
+            dt=local_dt.replace(tzinfo=None),
+            lon=lon,
+            lat=lat,
+        )
+
+        # Prefer configured OpenRouter provider where supported by the project.
+        provider = GeminiProvider(api_key=settings.LLM_API_KEY)
+        orchestrator = AIOrchestrator(primary_provider=provider)
+        response = await orchestrator.interpret_chart(
+            user_question=message.text,
+            deterministic_data=chart_data,
+            memory_context="No prior memory in MVP.",
+        )
+        await message.answer(
+            f"✨ <i>Разбор вопроса:</i>\n\n«{message.text}»\n\n{response.interpretation}"
+        )
+    except Exception:
+        logger.exception("Error processing AI chat", tg_id=message.from_user.id)
+        await message.answer(
+            "Сейчас не удалось подготовить ответ. Попробуйте ещё раз позже. 🌌"
+        )
