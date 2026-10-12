@@ -126,3 +126,29 @@ def test_natal_chart_returns_motion_for_rahu_and_ketu():
     assert chart["positions"]["Ketu"]["longitude"] == (
         chart["positions"]["Rahu"]["longitude"] + 180
     ) % 360
+
+
+@pytest.mark.asyncio
+async def test_life_areas_endpoint_uses_saved_profile(client: AsyncClient, user_token_headers):
+    profile_data = {
+        "name": "Life Areas Test",
+        "birth_date": "1990-01-01",
+        "birth_time_str": "15:00",
+        "lat": 55.75,
+        "lon": 37.61,
+        "timezone": "Europe/Moscow",
+    }
+    saved = await client.post(
+        "/api/profile/me", json=profile_data, headers=user_token_headers
+    )
+    assert saved.status_code == 200
+
+    response = await client.get(
+        "/api/astrology/life-areas", headers=user_token_headers
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["career"]["astrological_factors"]
+    assert result["career"]["active_periods"]
+    assert result["career"]["active_transits"]
+    assert result["generated_at"]
