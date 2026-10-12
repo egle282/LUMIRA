@@ -113,17 +113,23 @@ class BriefingService:
         is_mock = True
 
         try:
+            fallback = None
             if settings.OPENROUTER_API_KEY:
                 provider = OpenRouterProvider(
                     api_key=settings.OPENROUTER_API_KEY,
                     model_name="meta-llama/llama-3.1-8b-instruct:free",
                 )
+                if settings.LLM_API_KEY:
+                    fallback = GeminiProvider(api_key=settings.LLM_API_KEY)
             elif settings.LLM_API_KEY:
                 provider = GeminiProvider(api_key=settings.LLM_API_KEY)
             else:
                 provider = None
             if provider:
-                orchestrator = AIOrchestrator(primary_provider=provider)
+                orchestrator = AIOrchestrator(
+                    primary_provider=provider,
+                    fallback_provider=fallback,
+                )
                 ai_output = await orchestrator.generate_daily_briefing_interpretation(
                     panchanga.model_dump(), [item.model_dump() for item in transits]
                 )
