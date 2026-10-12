@@ -5,7 +5,7 @@ import os
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,7 +23,7 @@ logger = logging.getLogger("lumira_backend")
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
 
 class ChatMessage(BaseModel):
-    message: str
+    message: str = Field(min_length=1, max_length=4000)
 
 class ChatResponse(BaseModel):
     reply: str
