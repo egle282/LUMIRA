@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import re
+import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -77,7 +78,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 
     # Establish the tenant ID before INSERT so the tenants RLS policy can
     # verify ownership of the new registry row.
-    new_tenant = Tenant(id=str(__import__("uuid").uuid4()), name=f"Tenant for {user_data.email}")
+    new_tenant = Tenant(id=str(uuid.uuid4()), name=f"Tenant for {user_data.email}")
     await set_tenant_context(db, str(new_tenant.id))
     db.add(new_tenant)
     await db.flush()
