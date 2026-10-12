@@ -154,7 +154,7 @@ jobs:
             sleep 2
           done
           docker compose exec -T db pg_isready -U lumira_admin -d lumira_db
-          docker compose exec -T backend python backend/scripts/init_tables.py
+          docker compose exec -T backend python -m backend.scripts.init_tables
 
       - name: Verify API and frontend respond
         run: |
