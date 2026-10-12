@@ -47,7 +47,7 @@ export function Billing() {
         <p>{t('billing.status')} {status?.status}</p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      <p role="status" style={{ color: 'var(--text-muted)' }}>Платёжные провайдеры ещё не подключены. Платный тариф нельзя активировать из интерфейса; это предотвращает фиктивное списание и выдачу платного доступа без подтверждения оплаты.</p>\n      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
         <div className="glass-panel" style={{ padding: '1.5rem', textAlign: 'center', borderRadius: '8px' }}>
           <h3>PRO PLAN</h3>
           <p style={{ margin: '1rem 0' }}>{t('billing.pro_desc')}</p>
@@ -56,9 +56,9 @@ export function Billing() {
             className="btn-primary" 
             style={{ width: '100%' }}
             onClick={() => handleUpgrade('pro')}
-            disabled={status?.plan_name === 'pro'}
+            disabled
           >
-            {status?.plan_name === 'pro' ? t('billing.current_plan_btn') : t('billing.upgrade_pro')}
+            Оплата пока недоступна
           </button>
         </div>
 
@@ -70,9 +70,9 @@ export function Billing() {
             className="btn-primary" 
             style={{ width: '100%' }}
             onClick={() => handleUpgrade('premium')}
-            disabled={status?.plan_name === 'premium'}
+            disabled
           >
-            {status?.plan_name === 'premium' ? t('billing.current_plan_btn') : t('billing.upgrade_premium')}
+            Оплата пока недоступна
           </button>
         </div>
       </div>
