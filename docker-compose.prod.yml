@@ -93,6 +93,9 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ADMIN_DATABASE_URL=postgresql+asyncpg://${ADMIN_DB_USER:-lumira_admin_role}:${ADMIN_DB_PASSWORD:?Set ADMIN_DB_PASSWORD in .env}@db/lumira_prod
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
+      - ENVIRONMENT=production
     depends_on:
       init-db:
         condition: service_completed_successfully
