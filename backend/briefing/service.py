@@ -60,7 +60,7 @@ class BriefingService:
         tithi = int(panchanga_data["tithi"])
         nakshatra = int(panchanga_data["nakshatra"])
         yoga = int(panchanga_data["yoga"])
-        tithi_name = TITHIS[(tithi - 1) % 15]
+        tithi_name = TITHIS[(tithi - 1) % 30]
         paksha = "Шукла (растущая Луна)" if tithi <= 15 else "Кришна (убывающая Луна)"
         score = 5 + (2 if tithi in FAVORABLE_TITHIS else 0) + (2 if nakshatra in FAVORABLE_NAKSHATRAS else 0)
         score = max(1, min(9, score))
