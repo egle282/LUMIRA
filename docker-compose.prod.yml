@@ -43,7 +43,8 @@ services:
     command: ["python", "-m", "backend.scripts.init_tables"]
     environment:
       - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://${APP_DB_USER:-lumira_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}@db/lumira_prod
+      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-lumira_admin}:${DB_PASSWORD:?Set DB_PASSWORD in .env}@db/lumira_prod
+      - APP_DB_USER=${APP_DB_USER:-lumira_app}
       - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
       - ADMIN_DB_USER=${ADMIN_DB_USER:-lumira_admin_role}
     depends_on:
@@ -66,6 +67,11 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - LLM_API_KEY=${LLM_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - STRIPE_PRICE_PRO=${STRIPE_PRICE_PRO}
+      - STRIPE_PRICE_PREMIUM=${STRIPE_PRICE_PREMIUM}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
       - ADMIN_EMAIL=${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
     depends_on:

@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     LLM_API_KEY: str | None = None
     OPENROUTER_API_KEY: str | None = None
+    STRIPE_SECRET_KEY: str | None = None
+    STRIPE_WEBHOOK_SECRET: str | None = None
+    STRIPE_PRICE_PRO: str | None = None
+    STRIPE_PRICE_PREMIUM: str | None = None
+    FRONTEND_URL: str = "http://localhost:5173"
     ADMIN_EMAIL: str | None = None
     ADMIN_PASSWORD: str | None = None
     ALLOWED_ORIGINS: list[str] | str = ["http://localhost:5173", "http://localhost:3000"]

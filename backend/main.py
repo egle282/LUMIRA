@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from backend.admin.router import admin_router
 from backend.memory.router import router as memory_router
 from backend.astrology.router import router as astrology_router
+from backend.astrology.muhurta_api import router as muhurta_router
 from backend.briefing.router import router as briefing_router
 from backend.api.auth import router as auth_router, get_password_hash
 from backend.api.chat import router as chat_router
@@ -78,6 +79,7 @@ app.include_router(chat_router, prefix="/api")
 app.include_router(admin_router)
 app.include_router(memory_router, prefix="/api")
 app.include_router(astrology_router, prefix="/api")
+app.include_router(muhurta_router, prefix="/api")
 app.include_router(briefing_router, prefix="/api")
 app.include_router(chart_router, prefix="/api")
 app.include_router(profile_router, prefix="/api")

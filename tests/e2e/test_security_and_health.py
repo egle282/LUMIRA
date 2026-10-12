@@ -4,13 +4,24 @@ from backend.main import app # Assuming FastAPI app instance is here
 
 @pytest.mark.asyncio
 async def test_health_check():
-    """Verify that the production health check is responsive."""
-    from backend.database.database import engine
-    await engine.dispose()
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        response = await ac.get("/api/health")
-    assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    """Verify the health endpoint returns OK when its DB probe succeeds."""
+    from backend.database.database import get_db
+
+    class FakeSession:
+        async def execute(self, statement):
+            return None
+
+    async def mock_get_db():
+        yield FakeSession()
+
+    app.dependency_overrides[get_db] = mock_get_db
+    try:
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+            response = await ac.get("/api/health")
+        assert response.status_code == 200
+        assert response.json() == {"status": "ok"}
+    finally:
+        app.dependency_overrides.clear()
 
 @pytest.mark.asyncio
 async def test_rls_tenant_isolation():

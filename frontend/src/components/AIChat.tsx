@@ -28,8 +28,8 @@ export function AIChat() {
         },
         body: JSON.stringify({ message: userText })
       });
-      if (!res.ok) throw new Error('Failed to fetch from AI');
       const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Не удалось получить ответ AI.');
       setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
     } catch (err: any) {
       setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${err.message}` }]);

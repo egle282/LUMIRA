@@ -2,11 +2,12 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Dict
 
+
 class PlanType(str, Enum):
-    FREE = "FREE"
-    SEEKER = "SEEKER"       # Basic tier
-    ORACLE = "ORACLE"       # Premium tier
-    ENTERPRISE = "ENTERPRISE" # API/Astrologer tier
+    FREE = "free"
+    PRO = "pro"
+    PREMIUM = "premium"
+
 
 class SubscriptionPlan(BaseModel):
     id: str
@@ -16,43 +17,44 @@ class SubscriptionPlan(BaseModel):
     max_saved_charts: int
     features: list[str]
 
+
 PLANS: Dict[PlanType, SubscriptionPlan] = {
     PlanType.FREE: SubscriptionPlan(
-        id="plan_free",
+        id="free",
         name=PlanType.FREE,
         monthly_price=0.0,
         max_daily_ai_messages=5,
         max_saved_charts=1,
-        features=["Basic Natal Chart", "Daily Transits"]
+        features=["Natal chart", "Daily Panchanga", "5 AI chat messages per day"],
     ),
-    PlanType.SEEKER: SubscriptionPlan(
-        id="plan_seeker",
-        name=PlanType.SEEKER,
+    PlanType.PRO: SubscriptionPlan(
+        id="pro",
+        name=PlanType.PRO,
         monthly_price=9.99,
         max_daily_ai_messages=50,
-        max_saved_charts=10,
-        features=["Full Natal Chart", "Karma Timeline", "Muhurta Insights"]
+        max_saved_charts=1,
+        features=["All current features", "50 AI chat messages per day"],
     ),
-    PlanType.ORACLE: SubscriptionPlan(
-        id="plan_oracle",
-        name=PlanType.ORACLE,
-        monthly_price=29.99,
-        max_daily_ai_messages=9999, # Unlimited
-        max_saved_charts=9999,
-        features=["All Features", "Destiny Matrix", "Priority AI Context", "No Limits"]
-    )
+    PlanType.PREMIUM: SubscriptionPlan(
+        id="premium",
+        name=PlanType.PREMIUM,
+        monthly_price=24.99,
+        max_daily_ai_messages=9999,
+        max_saved_charts=1,
+        features=["All current features", "Expanded AI chat limit (up to 9999 per day)", "Stripe subscription management"],
+    ),
 }
 
+DAILY_AI_LIMITS = {plan.value: details.max_daily_ai_messages for plan, details in PLANS.items()}
+
+
 class UsageTracker:
-    """
-    Tracks and limits user usage based on their active subscription plan.
-    Must integrate with PostgreSQL/Redis to persist usage counts.
-    """
-    
+    """Usage counters are persisted in InteractionLog by the API layer."""
+
     def check_ai_message_limit(self, user_id: str, plan: PlanType, current_daily_usage: int) -> bool:
-        plan_limits = PLANS[plan]
+        plan_limits = PLANS.get(plan, PLANS[PlanType.FREE])
         return current_daily_usage < plan_limits.max_daily_ai_messages
 
     def record_ai_message(self, user_id: str):
-        # Increment daily counter in DB/Redis
-        pass
+        """Usage is persisted as InteractionLog rows by the chat API."""
+        return None

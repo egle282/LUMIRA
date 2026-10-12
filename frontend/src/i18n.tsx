@@ -52,8 +52,8 @@ export const translations: Translations = {
   'billing.upgrade_pro': { en: 'Upgrade to Pro', ru: 'Перейти на Pro' },
   'billing.upgrade_premium': { en: 'Upgrade to Premium', ru: 'Перейти на Premium' },
   'billing.current_plan_btn': { en: 'Current Plan', ru: 'Текущий тариф' },
-  'billing.pro_desc': { en: 'Advanced charts, Muhurta calculation, Priority AI processing.', ru: 'Продвинутые карты, расчет Мухурты, Приоритет ИИ.' },
-  'billing.premium_desc': { en: 'Everything in Pro + Unlimited AI Chats + Destiny Matrix Full Access.', ru: 'Все в Pro + Безлимитные ИИ Чаты + Полный доступ к Матрице Судьбы.' },
+  'billing.pro_desc': { en: 'All current features with 50 AI chat messages per day.', ru: 'Все текущие функции и до 50 сообщений AI-чату в день.' },
+  'billing.premium_desc': { en: 'All current features with an expanded daily AI chat limit.', ru: 'Все текущие функции и увеличенный дневной лимит AI-чата.' },
 
   // Dashboard
   'dash.briefing': { en: 'DAILY BRIEFING', ru: 'ДНЕВНОЙ БРИФИНГ' },
