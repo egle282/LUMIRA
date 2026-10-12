@@ -158,8 +158,10 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     plan_name = metadata.get("plan_name", "pro").lower()
     if not user_id or not tenant_id:
         # Ignore unrelated Stripe objects rather than mutate local subscription state.
+        await db.commit()
         return {"received": True, "ignored": True}
     if plan_name not in PLANS:
+        await db.commit()
         return {"received": True, "ignored": True}
 
     await set_tenant_context(db, tenant_id)
@@ -168,6 +170,7 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     )
     user = user_result.scalars().first()
     if user is None:
+        await db.commit()
         return {"received": True, "ignored": True}
 
     result = await db.execute(
