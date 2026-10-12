@@ -21,13 +21,15 @@ def require_admin(current_user: User = Depends(get_current_user)):
 @admin_router.get("/metrics/ai-cost")
 async def get_ai_costs(admin_user: User = Depends(require_admin), db: AsyncSession = Depends(get_admin_db)):
     logger.info(f"Admin action by user {admin_user.id}: Accessed AI cost metrics")
-    total_tokens = await db.scalar(select(func.sum(InteractionLog.tokens_used))) or 0
-    # Assuming $0.01 per 1000 tokens for calculation
-    cost = (total_tokens / 1000) * 0.01
-    
+    total_messages = await db.scalar(
+        select(func.count()).select_from(InteractionLog).where(InteractionLog.intent == "ai_chat")
+    ) or 0
+    # Providers do not currently return normalized token usage, so do not invent
+    # token totals or dollar costs from a hard-coded price assumption.
     return {
-        "total_tokens_used": total_tokens,
-        "estimated_cost_usd": round(cost, 4),
+        "total_ai_messages": total_messages,
+        "token_usage_tracking": False,
+        "estimated_cost_usd": None,
     }
 
 @admin_router.get("/users")
@@ -47,7 +49,8 @@ async def list_users(admin_user: User = Depends(require_admin), db: AsyncSession
 
 @admin_router.post("/feature-flags")
 async def toggle_feature(feature_name: str, enabled: bool, admin_user: User = Depends(require_admin)):
-    logger.info(f"Admin action by user {admin_user.id}: Toggled feature flag '{feature_name}' to {enabled}")
-    # Mock feature flag DB storage
-    return {"status": "success", "feature": feature_name, "state": "enabled" if enabled else "disabled"}
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Persistent feature-flag storage is not implemented.",
+    )
 
