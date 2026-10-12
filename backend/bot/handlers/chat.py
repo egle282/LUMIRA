@@ -7,6 +7,7 @@ from aiogram.types import Message
 from sqlalchemy import select
 
 from backend.ai.gemini_provider import GeminiProvider
+from backend.ai.openrouter_provider import OpenRouterProvider
 from backend.ai.orchestrator import AIOrchestrator
 from backend.astrology.engine import engine
 from backend.core.config import settings
@@ -63,9 +64,28 @@ async def handle_user_message(message: Message):
             lat=lat,
         )
 
-        # Prefer configured OpenRouter provider where supported by the project.
-        provider = GeminiProvider(api_key=settings.LLM_API_KEY)
-        orchestrator = AIOrchestrator(primary_provider=provider)
+        # Prefer OpenRouter when configured; use Gemini as fallback when available.
+        if settings.OPENROUTER_API_KEY:
+            provider = OpenRouterProvider(api_key=settings.OPENROUTER_API_KEY)
+            fallback = (
+                GeminiProvider(api_key=settings.LLM_API_KEY)
+                if settings.LLM_API_KEY
+                else None
+            )
+        elif settings.LLM_API_KEY:
+            provider = GeminiProvider(api_key=settings.LLM_API_KEY)
+            fallback = None
+        else:
+            await message.answer(
+                "AI-провайдер не настроен. Добавьте OPENROUTER_API_KEY "
+                "или LLM_API_KEY в .env и перезапустите бота."
+            )
+            return
+
+        orchestrator = AIOrchestrator(
+            primary_provider=provider,
+            fallback_provider=fallback,
+        )
         response = await orchestrator.interpret_chart(
             user_question=message.text,
             deterministic_data=chart_data,
