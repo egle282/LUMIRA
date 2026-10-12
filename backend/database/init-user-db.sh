@@ -22,7 +22,8 @@ fi
 psql -v ON_ERROR_STOP=1 \
   --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" \
   --set=app_role="$APP_DB_USER" --set=app_password="$APP_DB_PASSWORD" \
-  --set=admin_role="$ADMIN_DB_USER" --set=admin_password="$ADMIN_DB_PASSWORD" <<'EOSQL'
+  --set=admin_role="$ADMIN_DB_USER" --set=admin_password="$ADMIN_DB_PASSWORD" \
+  --set=db_name="$POSTGRES_DB" <<'EOSQL'
 SELECT format(
   'CREATE ROLE %I LOGIN PASSWORD %L NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOREPLICATION NOBYPASSRLS',
   :'app_role', :'app_password'
@@ -47,8 +48,8 @@ SELECT format(
 )
 \gexec
 
-GRANT CONNECT ON DATABASE :"DB_NAME" TO :"app_role";
-GRANT CONNECT ON DATABASE :"DB_NAME" TO :"admin_role";
+GRANT CONNECT ON DATABASE :"db_name" TO :"app_role";
+GRANT CONNECT ON DATABASE :"db_name" TO :"admin_role";
 GRANT USAGE, CREATE ON SCHEMA public TO :"app_role";
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO :"app_role";
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO :"app_role";
