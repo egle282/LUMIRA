@@ -58,8 +58,7 @@ export function Dashboard() {
         {profile && profile.birth_date && (
           <div style={{ textAlign: 'right', color: 'var(--text-muted)' }}>
             <div style={{ fontSize: '0.9rem' }}>Ваши данные:</div>
-            <div style={{ color: 'white', fontWeight: 500 }}>{profile.birth_date} • {profile.birth_time}</div>
-            <div style={{ color: 'white', fontWeight: 500 }}>{profile.city}</div>
+            <div style={{ color: 'white', fontWeight: 500 }}>{profile.birth_date} • {profile.birth_time_str}</div>
           </div>
         )}
       </section>
