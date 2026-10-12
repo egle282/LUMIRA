@@ -22,6 +22,8 @@ export function Dashboard() {
 
         if (briefingRes.ok) {
           setBriefing(await briefingRes.json());
+        } else {
+          setError('Не удалось рассчитать дневной брифинг. Проверьте профиль и настройки сервера.');
         }
         if (profileRes.ok) {
           const savedProfile = await profileRes.json();
@@ -146,7 +148,7 @@ export function Dashboard() {
             </li>
             <li style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem', marginTop: '0.5rem' }}>
               <span style={{ color: 'var(--text-muted)' }}>{t('dash.auspiciousness')}</span>
-              <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold' }}>{briefing?.panchanga?.auspiciousness_score}/10</span>
+              <span style={{ color: 'var(--accent-gold)', fontWeight: 'bold' }}>{briefing?.panchanga?.auspiciousness_score}/9</span>
             </li>
           </ul>
         </section>
