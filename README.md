@@ -87,7 +87,7 @@
 
 Перед запуском обязательно заполните секреты в `.env`: `DB_PASSWORD`, `APP_DB_PASSWORD`, `ADMIN_DB_PASSWORD`, `REDIS_PASSWORD` и `JWT_SECRET`. Compose намеренно не подставляет известные пароли по умолчанию. Для локальной разработки можно сгенерировать JWT через `openssl rand -hex 32`.
 
-Запустите контейнеры базы данных, redis, бэкенда и фронтенда:
+Compose автоматически дождётся готовности PostgreSQL, создаст таблицы и включит политики RLS отдельным одноразовым сервисом `init-db`, а затем запустит backend и frontend. Запустите стек:
 
 ```bash
 docker compose up --build
@@ -103,6 +103,8 @@ docker compose up --build
 ### 2. Production сборка
 
 Перед запуском production-конфигурации задайте уникальные сильные значения для всех секретов в `.env`. Не используйте значения из примеров и не публикуйте `.env`. Production Compose предоставляет HTTP на порту 80; настройте HTTPS на внешнем reverse proxy (Nginx, Caddy или Cloudflare).
+
+Production Compose также автоматически инициализирует схему до запуска API. Первый запуск создаёт пустую базу и таблицы; для последующих обновлений схемы используйте миграции проекта, если они добавлены. Перед запуском убедитесь, что `ADMIN_EMAIL` и `ADMIN_PASSWORD` заданы, а все пароли и `JWT_SECRET` заменены на уникальные значения.
 
 Для production-окружения используйте:
 
@@ -134,7 +136,7 @@ pip install --upgrade pip
 pip install -r backend/requirements.txt
 
 # Создание таблиц и активация RLS
-python backend/scripts/init_tables.py
+python -m backend.scripts.init_tables
 
 # Создание первого системного администратора
 python backend/scripts/create_admin.py admin@example.com "SuperSecurePassword123!"
