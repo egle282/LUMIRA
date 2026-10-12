@@ -2,10 +2,19 @@ import { getApiBaseUrl } from "../api";
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n';
 
+type ProfileForm = {
+  name: string;
+  birth_date: string;
+  birth_time_str: string;
+  lat: number | "";
+  lon: number | "";
+  timezone: string;
+};
+
 export function Settings() {
   const { t, language, setLanguage } = useLanguage();
   
-  const [profile, setProfile] = useState({
+  const [profile, setProfile] = useState<ProfileForm>({
     name: '',
     birth_date: '',
     birth_time_str: '',
