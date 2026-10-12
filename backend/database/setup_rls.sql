@@ -6,7 +6,7 @@ ALTER TABLE tenants FORCE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS tenant_isolation_tenants_policy ON tenants;
 CREATE POLICY tenant_isolation_tenants_policy ON tenants
   USING (id::text = current_setting('app.current_tenant', TRUE) OR current_user = 'lumira_admin_role')
-  WITH CHECK (id::text = current_setting('app.current_tenant', TRUE) OR current_setting('app.current_tenant', TRUE) IS NULL);
+  WITH CHECK (id::text = current_setting('app.current_tenant', TRUE) OR NULLIF(current_setting('app.current_tenant', TRUE), '') IS NULL);
 
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
