@@ -228,7 +228,7 @@ async def handle_main_menu(callback: CallbackQuery):
                 f"Вара: {briefing.panchanga.vara}\n"
                 f"Накшатра: {briefing.panchanga.nakshatra}\n"
                 f"Йога: {briefing.panchanga.yoga}\n\n"
-                f"{briefing.ai_interpretation}\n\n"
+                f"{html.escape(briefing.ai_interpretation)}\n\n"
                 f"<i>Традиционная астрологическая интерпретация, не гарантия событий.</i>"
             )
             return
