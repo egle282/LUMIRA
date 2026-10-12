@@ -132,8 +132,8 @@ jobs:
           ADMIN_DB_PASSWORD=$(openssl rand -hex 24)
           REDIS_PASSWORD=$(openssl rand -hex 24)
           JWT_SECRET=$(openssl rand -hex 32)
-          ADMIN_EMAIL=
-          ADMIN_PASSWORD=
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=$(openssl rand -hex 24)
           TELEGRAM_BOT_TOKEN=
           LLM_API_KEY=
           OPENROUTER_API_KEY=
