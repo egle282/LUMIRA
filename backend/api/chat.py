@@ -15,7 +15,7 @@ from backend.ai.orchestrator import AIOrchestrator
 from backend.api.deps import get_current_user
 from backend.astrology.engine import engine
 from backend.core.config import settings
-from backend.billing.subscriptions import PLANS
+from backend.billing.subscriptions import DAILY_AI_LIMITS
 from backend.database.database import get_db
 from backend.database.models import User, Profile, Subscription, InteractionLog
 
@@ -56,8 +56,7 @@ async def ai_chat_endpoint(
     if subscription and subscription.status in {"active", "trialing"}:
         if subscription.current_period_end is None or subscription.current_period_end > now:
             plan_name = subscription.plan_name.lower()
-    limits = {"free": 5, "pro": 50, "premium": 9999}
-    daily_limit = limits.get(plan_name, limits["free"])
+    daily_limit = DAILY_AI_LIMITS.get(plan_name, DAILY_AI_LIMITS["free"])
     day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     usage_result = await db.execute(
         select(func.count()).select_from(InteractionLog).where(
@@ -128,6 +127,7 @@ async def ai_chat_endpoint(
     except HTTPException:
         raise
     except Exception as exc:
+        await db.rollback()
         error_id = str(uuid.uuid4())
         logger.error("Chat error [ID: %s]: %s", error_id, exc, exc_info=True)
         return ChatResponse(reply=f"Не удалось завершить AI-интерпретацию. Проверьте настройки AI-провайдера или повторите запрос позже. Код ошибки: {error_id}")
