@@ -85,6 +85,35 @@ async def upgrade_subscription(
         raise HTTPException(status_code=502, detail="Stripe returned no checkout URL.")
     return {"status": "pending", "checkout_url": session.url, "session_id": session.id}
 
+@router.post("/portal")
+async def create_customer_portal(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a Stripe-hosted portal session for the authenticated user's customer."""
+    if not settings.STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Stripe billing is not configured.")
+    result = await db.execute(
+        select(Subscription).where(Subscription.user_id == current_user.id)
+        .order_by(Subscription.created_at.desc()).limit(1)
+    )
+    subscription = result.scalars().first()
+    if not subscription or not subscription.stripe_customer_id:
+        raise HTTPException(status_code=404, detail="No Stripe customer is linked to this account.")
+    try:
+        session = await asyncio.to_thread(
+            stripe.billing_portal.Session.create,
+            api_key=settings.STRIPE_SECRET_KEY,
+            customer=subscription.stripe_customer_id,
+            return_url=settings.FRONTEND_URL.rstrip("/") + "/?billing=portal-return",
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail="Stripe could not create a customer portal session.") from exc
+    if not session.url:
+        raise HTTPException(status_code=502, detail="Stripe returned no customer portal URL.")
+    return {"url": session.url}
+
+
 @router.post("/webhook")
 async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     if not settings.STRIPE_WEBHOOK_SECRET:
