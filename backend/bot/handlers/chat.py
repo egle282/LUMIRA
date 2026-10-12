@@ -99,8 +99,18 @@ async def handle_user_message(message: Message, state: FSMContext):
             deterministic_data=chart_data,
             memory_context="No prior memory in MVP.",
         )
+        sections = [response.summary]
+        if response.opportunities:
+            sections.append("🌟 <b>Возможности</b>\n" + "\n".join(f"• {item}" for item in response.opportunities))
+        if response.risks:
+            sections.append("⚠️ <b>На что обратить внимание</b>\n" + "\n".join(f"• {item}" for item in response.risks))
+        if response.recommendations:
+            sections.append("💡 <b>Рекомендации</b>\n" + "\n".join(f"• {item}" for item in response.recommendations))
+        import html
         await message.answer(
-            f"✨ <i>Разбор вопроса:</i>\n\n«{message.text}»\n\n{response.interpretation}"
+            f"✨ <i>Разбор вопроса:</i>\n\n«{html.escape(message.text)}»\n\n"
+            + "\n\n".join(sections)
+            + "\n\n<i>Астрологическая интерпретация не является гарантией событий или профессиональной консультацией.</i>"
         )
     except Exception:
         logger.exception("Error processing AI chat", tg_id=message.from_user.id)
