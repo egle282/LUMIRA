@@ -6,7 +6,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.ai.gemini_provider import GeminiProvider
@@ -15,8 +15,9 @@ from backend.ai.orchestrator import AIOrchestrator
 from backend.api.deps import get_current_user
 from backend.astrology.engine import engine
 from backend.core.config import settings
+from backend.billing.subscriptions import PLANS
 from backend.database.database import get_db
-from backend.database.models import User, Profile
+from backend.database.models import User, Profile, Subscription, InteractionLog
 
 logger = logging.getLogger("lumira_backend")
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
@@ -44,6 +45,33 @@ async def ai_chat_endpoint(
     profile = result.scalars().first()
     if profile is None:
         raise HTTPException(status_code=400, detail="Сначала заполните профиль рождения в настройках.")
+
+    now = datetime.now(timezone.utc)
+    subscription_result = await db.execute(
+        select(Subscription).where(Subscription.user_id == current_user.id)
+        .order_by(Subscription.created_at.desc()).limit(1)
+    )
+    subscription = subscription_result.scalars().first()
+    plan_name = "free"
+    if subscription and subscription.status in {"active", "trialing"}:
+        if subscription.current_period_end is None or subscription.current_period_end > now:
+            plan_name = subscription.plan_name.lower()
+    limits = {"free": 5, "pro": 50, "premium": 9999}
+    daily_limit = limits.get(plan_name, limits["free"])
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    usage_result = await db.execute(
+        select(func.count()).select_from(InteractionLog).where(
+            InteractionLog.user_id == current_user.id,
+            InteractionLog.intent == "ai_chat",
+            InteractionLog.created_at >= day_start,
+        )
+    )
+    daily_usage = int(usage_result.scalar_one())
+    if daily_usage >= daily_limit:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Достигнут дневной лимит AI-сообщений для тарифа {plan_name}: {daily_limit}.",
+        )
 
     try:
         zone = ZoneInfo(profile.timezone)
@@ -86,7 +114,17 @@ async def ai_chat_endpoint(
             sections.append("⚠️ На что обратить внимание:\n" + "\n".join(f"- {item}" for item in interp.risks))
         if interp.recommendations:
             sections.append("💡 Рекомендации:\n" + "\n".join(f"- {item}" for item in interp.recommendations))
-        return ChatResponse(reply="\n\n".join(sections).strip())
+        reply = "\n\n".join(sections).strip()
+        db.add(InteractionLog(
+            tenant_id=current_user.tenant_id,
+            user_id=current_user.id,
+            intent="ai_chat",
+            input_text=msg.message,
+            output_text=reply,
+            tokens_used=0,
+        ))
+        await db.commit()
+        return ChatResponse(reply=reply)
     except HTTPException:
         raise
     except Exception as exc:
