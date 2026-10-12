@@ -4,6 +4,7 @@ import asyncio
 
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
+from aiogram.fsm.context import FSMContext
 from sqlalchemy import select
 
 from backend.ai.gemini_provider import GeminiProvider
@@ -29,8 +30,13 @@ async def find_telegram_user(telegram_id: str) -> User | None:
 
 
 @router.message(F.text)
-async def handle_user_message(message: Message):
+async def handle_user_message(message: Message, state: FSMContext):
     if not message.text:
+        return
+    if message.text.strip() == "/edit_profile":
+        from backend.bot.handlers.onboarding import OnboardingStates
+        await state.set_state(OnboardingStates.waiting_for_name)
+        await message.answer("Введите новое имя. Затем обновим дату, время, координаты и часовой пояс рождения.")
         return
     logger.info("Received chat message", tg_id=message.from_user.id)
     await message.bot.send_chat_action(chat_id=message.chat.id, action="typing")
@@ -192,10 +198,6 @@ async def handle_main_menu(callback: CallbackQuery):
             return
 
         if action == "menu_settings":
-            from aiogram.fsm.context import FSMContext
-            from backend.bot.handlers.onboarding import OnboardingStates
-            # The state is set through the FSM middleware in the onboarding router
-            # in a dedicated callback handler below.
             await callback.message.answer(
                 "⚙️ <b>Настройки профиля</b>\n"
                 f"Имя: {profile_name}\n"
@@ -213,10 +215,3 @@ async def handle_main_menu(callback: CallbackQuery):
     except Exception:
         logger.exception("Error handling Telegram menu callback", tg_id=callback.from_user.id)
         await callback.message.answer("Не удалось выполнить действие. Попробуйте ещё раз позже.")
-
-
-@router.message(F.text == "/edit_profile")
-async def edit_profile(message: Message, state):
-    from backend.bot.handlers.onboarding import OnboardingStates
-    await state.set_state(OnboardingStates.waiting_for_name)
-    await message.answer("Введите новое имя. Затем обновим дату, время, координаты и часовой пояс рождения.")
