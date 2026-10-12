@@ -22,6 +22,15 @@ from backend.database.models import User, Profile, Subscription, InteractionLog
 logger = logging.getLogger("lumira_backend")
 router = APIRouter(prefix="/chat", tags=["AI Chat"])
 
+
+def _local_day_start_utc(now: datetime, timezone_name: str) -> datetime:
+    """Return midnight at the start of the user's local day as an aware UTC datetime."""
+    zone = ZoneInfo(timezone_name)
+    utc_now = now.replace(tzinfo=timezone.utc) if now.tzinfo is None else now.astimezone(timezone.utc)
+    return utc_now.astimezone(zone).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ).astimezone(timezone.utc)
+
 class ChatMessage(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
 
@@ -61,11 +70,8 @@ async def ai_chat_endpoint(
         if subscription.current_period_end is None or subscription.current_period_end > now:
             plan_name = subscription.plan_name.lower()
     daily_limit = DAILY_AI_LIMITS.get(plan_name, DAILY_AI_LIMITS["free"])
-    # Daily quotas follow the user's profile timezone, including daylight-saving
-    # transitions, rather than resetting at midnight UTC for everyone.
-    day_start = now.astimezone(profile_zone).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    ).astimezone(timezone.utc)
+    # Daily quotas follow the user's profile timezone, not midnight UTC.
+    day_start = _local_day_start_utc(now, profile.timezone)
     usage_result = await db.execute(
         select(func.count()).select_from(InteractionLog).where(
             InteractionLog.user_id == current_user.id,
