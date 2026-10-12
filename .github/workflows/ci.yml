@@ -162,6 +162,9 @@ jobs:
       - name: Validate production Compose configuration
         run: docker compose -f docker-compose.prod.yml config --quiet
 
+      - name: Build production Telegram bot image
+        run: docker compose -f docker-compose.prod.yml build bot
+
       - name: Build and start production services
         run: docker compose -f docker-compose.prod.yml up --build -d db redis backend frontend
 
