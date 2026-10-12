@@ -12,6 +12,7 @@ from backend.api.auth import get_password_hash
 
 
 async def create_admin(email: str, password: str):
+    email = email.lower().strip()
     if AdminAsyncSessionLocal is None:
         raise RuntimeError(
             "ADMIN_DATABASE_URL must be configured to safely check for existing users and tenants."
