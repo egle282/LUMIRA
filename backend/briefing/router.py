@@ -21,7 +21,7 @@ async def get_daily_briefing(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
     else:
-        date_obj = datetime.now(timezone.utc)
+        date_obj = None
         
     service = BriefingService(user_id=current_user.id, tenant_id=current_user.tenant_id)
     try:
