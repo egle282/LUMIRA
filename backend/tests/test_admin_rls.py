@@ -11,10 +11,20 @@ from backend.api.deps import get_current_user, get_db
 from backend.database.database import get_admin_db
 from backend.database.models import User, Tenant
 
+import os
+from dotenv import dotenv_values
+
+_env = dotenv_values(".env")
+_db_user = _env.get("DB_USER", "lumira")
+_db_pass = _env.get("DB_PASSWORD", "")
+_db_name = _env.get("DB_NAME", "lumira_db")
+_admin_user = _env.get("ADMIN_DB_USER", "lumira_admin_role")
+_admin_pass = _env.get("ADMIN_DB_PASSWORD", "admin_pass")
+
 # The test database URL
-TEST_DB_URL = "postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db"
+TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL") or f"postgresql+asyncpg://{_db_user}:{_db_pass}@127.0.0.1:5433/{_db_name}"
 # Admin URL
-ADMIN_DB_URL = "postgresql+asyncpg://lumira_admin_role:admin_pass@127.0.0.1:5433/lumira_db"
+ADMIN_DB_URL = os.getenv("ADMIN_DATABASE_URL") or f"postgresql+asyncpg://{_admin_user}:{_admin_pass}@127.0.0.1:5433/{_db_name}"
 
 async def override_get_current_admin():
     return User(id="admin_user_id", tenant_id="tenant_id_1", email="admin@test.com", role="admin")

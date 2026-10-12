@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Backups
+backups/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -61,6 +64,11 @@ htmlcov/
 # Logs
 *.log
 
+# Dumps & DB Backups
+*.dump
+*.sql
+*.bak
+
 # Internal / AI Agent Artifacts & Audits
 .antigravity/
 obsidian/
@@ -82,4 +90,7 @@ FINAL_PREDEPLOY_CHECK.md
 FINAL RELEASE TO GITHUB.md
 LUMIRA_FULL_AUDIT_FIX_SPEC.md
 LUMIRA_INDEPENDENT_AUDIT.md
+LUMIRA_ANTIGRAVITY_LOCAL_REPAIR_TZ.md
 TZ Lumira*.md
+scratch/
+

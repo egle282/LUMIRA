@@ -83,6 +83,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     db.add(new_tenant)
     await db.flush()
     new_user = User(
+        id=str(uuid.uuid4()),
         tenant_id=new_tenant.id,
         email=user_data.email,
         role="user",
@@ -94,7 +95,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     except Exception:
         await db.rollback()
         raise HTTPException(status_code=400, detail="Could not register account")
-    await db.refresh(new_user)
+
     token = create_access_token(
         {"sub": new_user.id, "role": new_user.role, "tenant_id": new_user.tenant_id},
         timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),

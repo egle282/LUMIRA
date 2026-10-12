@@ -6,8 +6,14 @@ from backend.core.config import settings
 import asyncio
 from sqlalchemy import text
 
-# Using the exposed port 5433 from docker-compose.yml
-TEST_DATABASE_URL = "postgresql+asyncpg://lumira:lumira_password@127.0.0.1:5433/lumira_db"
+import os
+from dotenv import dotenv_values
+
+_env = dotenv_values(".env")
+_db_user = _env.get("DB_USER", "lumira")
+_db_pass = _env.get("DB_PASSWORD", "")
+_db_name = _env.get("DB_NAME", "lumira_db")
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL") or f"postgresql+asyncpg://{_db_user}:{_db_pass}@127.0.0.1:5433/{_db_name}"
 
 @pytest_asyncio.fixture(scope="function", autouse=True)
 async def setup_db():
@@ -47,11 +53,9 @@ async def setup_db():
         await conn.execute(text("GRANT lumira_app TO lumira;"))
         await conn.execute(text("GRANT CONNECT ON DATABASE lumira_db TO lumira_admin_role;"))
         await conn.execute(text("GRANT USAGE ON SCHEMA public TO lumira_admin_role;"))
-        await conn.execute(text("GRANT SELECT ON users, interaction_logs TO lumira_admin_role;"))
+        await conn.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO lumira_admin_role;"))
 
     yield
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
     await engine.dispose()
 
 @pytest_asyncio.fixture(scope="function")
