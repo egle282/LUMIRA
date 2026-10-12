@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import uuid
 
 from aiogram import Router
@@ -22,6 +23,7 @@ class OnboardingStates(StatesGroup):
     waiting_for_birth_date = State()
     waiting_for_birth_time = State()
     waiting_for_location = State()
+    waiting_for_coordinates = State()
 
 
 async def find_telegram_user(telegram_id: str) -> User | None:
@@ -29,7 +31,7 @@ async def find_telegram_user(telegram_id: str) -> User | None:
         raise RuntimeError("ADMIN_DATABASE_URL is required for Telegram account lookup")
     async with AdminAsyncSessionLocal() as db:
         result = await db.execute(select(User).where(User.telegram_id == telegram_id))
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
 
 @router.message(CommandStart())
@@ -61,7 +63,7 @@ async def cmd_start(message: Message, state: FSMContext):
     async with AsyncSessionLocal() as db:
         await set_tenant_context(db, str(user.tenant_id))
         result = await db.execute(select(Profile).where(Profile.user_id == user.id))
-        profile = result.scalar_one_or_none()
+        profile = result.scalars().first()
 
     if profile:
         await message.answer(
@@ -124,18 +126,68 @@ async def process_location(message: Message, state: FSMContext):
     if len(location) < 2 or len(location) > 200:
         await message.answer("Укажите город и страну рождения.")
         return
-
-    # Geocoding/time-zone lookup is intentionally not faked. Ask for coordinates
-    # and IANA timezone when no geocoder is configured.
-    data = await state.get_data()
     await state.update_data(location=location)
     await message.answer(
-        "Чтобы расчёт был корректным, нужен часовой пояс и координаты города. "
-        "Сервис геокодирования пока не настроен. Пришлите данные в формате: "
-        "широта, долгота, часовой пояс (например: 57.7679, 40.9269, Europe/Moscow)."
+        "Автоматический геокодер пока не настроен, поэтому я не буду подставлять "
+        "чужие координаты. Пришлите координаты и часовой пояс в формате: "
+        "широта, долгота, IANA-часовой пояс. Пример: 57.7679, 40.9269, Europe/Moscow."
     )
-    await state.set_state(OnboardingStates.waiting_for_location_coordinates)
+    await state.set_state(OnboardingStates.waiting_for_coordinates)
 
 
-class _CoordinatesState(StatesGroup):
-    waiting_for_coordinates = State()
+@router.message(OnboardingStates.waiting_for_coordinates)
+async def process_coordinates(message: Message, state: FSMContext):
+    try:
+        parts = [part.strip() for part in (message.text or "").split(",")]
+        if len(parts) != 3:
+            raise ValueError("Expected latitude, longitude, timezone")
+        lat, lon = float(parts[0]), float(parts[1])
+        timezone = parts[2]
+        if not -90 <= lat <= 90 or not -180 <= lon <= 180:
+            raise ValueError("Coordinates out of range")
+        ZoneInfo(timezone)
+    except (ValueError, ZoneInfoNotFoundError):
+        await message.answer(
+            "Не удалось проверить данные. Формат: широта, долгота, IANA-часовой пояс "
+            "(например: 57.7679, 40.9269, Europe/Moscow)."
+        )
+        return
+
+    data = await state.get_data()
+    user = await find_telegram_user(str(message.from_user.id))
+    if user is None:
+        await state.clear()
+        await message.answer("Сначала выполните /start, затем повторите настройку.")
+        return
+
+    async with AsyncSessionLocal() as db:
+        await set_tenant_context(db, str(user.tenant_id))
+        existing = await db.execute(select(Profile).where(Profile.user_id == user.id))
+        profile = existing.scalars().first()
+        if profile is None:
+            profile = Profile(
+                id=str(uuid.uuid4()),
+                tenant_id=user.tenant_id,
+                user_id=user.id,
+                name=data["name"],
+                birth_date=data["birth_date"],
+                birth_time_str=data["birth_time_str"],
+                lat=lat,
+                lon=lon,
+                timezone=timezone,
+            )
+            db.add(profile)
+        else:
+            profile.name = data["name"]
+            profile.birth_date = data["birth_date"]
+            profile.birth_time_str = data["birth_time_str"]
+            profile.lat = lat
+            profile.lon = lon
+            profile.timezone = timezone
+        await db.commit()
+
+    await state.clear()
+    await message.answer(
+        f"Спасибо, {data['name']}! Данные профиля сохранены. 🌌",
+        reply_markup=main_menu_keyboard(),
+    )
