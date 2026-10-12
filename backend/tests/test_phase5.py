@@ -4,7 +4,7 @@ from backend.main import app
 
 @pytest.mark.asyncio
 async def test_lum_bill_001_billing_upgrade_bypass():
-    # Attempting to upgrade should return 501 Not Implemented
+    # Attempting to upgrade without Stripe configuration must fail closed
     # Wait, the endpoint uses get_current_user dependency!
     from backend.api.deps import get_current_user
     from backend.database.models import User
@@ -15,8 +15,8 @@ async def test_lum_bill_001_billing_upgrade_bypass():
     
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.post("/api/billing/upgrade", params={"plan_name": "premium"})
-        assert response.status_code == 501
-        assert "unconfigured" in response.json()["detail"].lower()
+        assert response.status_code == 503
+        assert "configured" in response.json()["detail"].lower()
         
     app.dependency_overrides.clear()
 
