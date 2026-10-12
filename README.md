@@ -113,6 +113,12 @@ Production Compose также автоматически инициализир�
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
+Telegram-бот запускается отдельно, только если задан `TELEGRAM_BOT_TOKEN`:
+
+```bash
+docker compose -f docker-compose.prod.yml --profile telegram up -d --build
+```
+
 ---
 
 ## 💻 Локальный запуск без Docker
