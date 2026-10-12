@@ -32,36 +32,11 @@ logger = logging.getLogger("lumira.api")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     if settings.ADMIN_EMAIL and settings.ADMIN_PASSWORD:
-        existing_admin = None
-        if AdminAsyncSessionLocal is not None:
-            async with AdminAsyncSessionLocal() as admin_session:
-                result = await admin_session.execute(
-                    select(User.id).where(User.email == settings.ADMIN_EMAIL)
-                )
-                existing_admin = result.scalar_one_or_none()
+        # Reuse the RLS-aware bootstrap path so the first administrator is
+        # created with tenant context established before protected inserts.
+        from backend.scripts.create_admin import create_admin
 
-        if existing_admin is None:
-            async with AsyncSessionLocal() as session:
-                # Create a dedicated tenant for the initial administrator.
-                new_tenant = Tenant(name="System Admin")
-                session.add(new_tenant)
-                await session.commit()
-                await session.refresh(new_tenant)
-
-                # RLS requires tenant context for writes to tenant-scoped tables.
-                await session.execute(
-                    text("SELECT set_config('app.current_tenant', :tenant_id, true)"),
-                    {"tenant_id": str(new_tenant.id)},
-                )
-                new_user = User(
-                    tenant_id=new_tenant.id,
-                    email=settings.ADMIN_EMAIL,
-                    role="admin",
-                    hashed_password=get_password_hash(settings.ADMIN_PASSWORD),
-                )
-                session.add(new_user)
-                await session.commit()
-                logger.info("Created initial administrator account: %s", settings.ADMIN_EMAIL)
+        await create_admin(settings.ADMIN_EMAIL, settings.ADMIN_PASSWORD)
     yield
 
 app = FastAPI(title="LUMIRA API", version="1.0.0", lifespan=lifespan)
