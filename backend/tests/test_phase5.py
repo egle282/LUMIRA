@@ -61,8 +61,11 @@ async def test_chat_requires_birth_profile_without_leaking_internal_details():
 
     app.dependency_overrides[get_current_user] = mock_get_current_user
     try:
-        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-            response = await ac.post("/api/chat", json={"message": "hello"})
+        from unittest.mock import patch
+        import os
+        with patch.dict(os.environ, {"OPENROUTER_API_KEY": "test-key"}):
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+                response = await ac.post("/api/chat", json={"message": "hello"})
         assert response.status_code == 400
         assert "профиль рождения" in response.json()["detail"].lower()
         assert "password hash" not in response.text.lower()
