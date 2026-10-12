@@ -10,6 +10,7 @@ type Sample = {
   nakshatra_name: string;
   yoga: number;
   karana: number;
+  karana_name: string;
 };
 
 type MuhurtaResult = {
@@ -91,7 +92,7 @@ export function Muhurta() {
           <h3 style={{ color: "var(--accent-gold)", fontSize: "1.8rem" }}>{result.best_hour.time} · оценка {result.best_hour.score}/9</h3>
           <p>Титхи: {result.best_hour.tithi_name} ({result.best_hour.tithi})</p>
           <p>Накшатра: {result.best_hour.nakshatra_name} ({result.best_hour.nakshatra})</p>
-          <p>Йога: {result.best_hour.yoga} · Карана: {result.best_hour.karana}</p>
+          <p>Йога: {result.best_hour.yoga} · Карана: {result.best_hour.karana_name}</p>
           <p style={{ color: "var(--text-muted)", marginTop: "1rem" }}>{result.method}</p>
         </section>
         <div style={{ overflowX: "auto" }}>
