@@ -21,7 +21,7 @@ async def create_admin(email: str, password: str):
     async with AdminAsyncSessionLocal() as lookup:
         existing = await lookup.execute(select(User).where(User.email == email))
         if existing.scalars().first():
-            print(f"Error: User {email} already exists.")
+            print(f"Admin account {email} already exists; no changes made.")
             return
         tenant_result = await lookup.execute(
             select(Tenant).where(Tenant.name == "System Admin").limit(1)
