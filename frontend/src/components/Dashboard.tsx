@@ -24,7 +24,11 @@ export function Dashboard() {
           setBriefing(await briefingRes.json());
         }
         if (profileRes.ok) {
-          setProfile(await profileRes.json());
+          const savedProfile = await profileRes.json();
+          setProfile(savedProfile);
+          if (!savedProfile) setError('Заполните профиль рождения в настройках, чтобы получить персональные расчёты.');
+        } else {
+          setError('Не удалось загрузить профиль. Проверьте авторизацию и попробуйте снова.');
         }
       } catch (err: any) {
         setError(err.message);
