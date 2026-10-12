@@ -2,7 +2,7 @@
 
 **Updated:** 12 October 2026  
 **Repository:** https://github.com/egle282/LUMIRA  
-**Verified commit:** `ba72fb7f9a6d155f6e63e0cf75aeb8cd473c4c79`  
+**Verified code commit:** `b92d58f3f7a1db74935ef6977af71e1f4efb3d52`  
 **Status:** **Self-hosted MVP: READY FOR TEST / LIMITED USE. Full production SaaS: NOT YET.**
 
 This report supersedes earlier audit notes. It reflects the code currently on `main` and the successful GitHub Actions run for the verified commit above. A later commit adds an additional life-areas API test and is being validated separately.
@@ -30,7 +30,7 @@ For commit `ba72fb7f9a6d155f6e63e0cf75aeb8cd473c4c79`, GitHub Actions reported:
 | Docker Compose clean-install smoke test | PASS |
 | Production Compose initialization, API proxy and frontend smoke test | PASS |
 
-CI does not validate secrets or third-party accounts supplied by an individual operator. The latest additional test commit must also pass CI before treating the current HEAD as fully verified.
+CI does not validate secrets or third-party accounts supplied by an individual operator. The verified code commit passed all three configured GitHub Actions jobs.
 
 ## Explicit limitations
 
