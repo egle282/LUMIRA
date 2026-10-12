@@ -36,7 +36,7 @@ async def main() -> None:
         # Repair databases initialized by older versions where the runtime role
         # owned the tables. Ownership would let it bypass FORCE RLS protections.
         await conn.execute(text("""
-            DO $
+            DO $$
             DECLARE obj record;
             BEGIN
               FOR obj IN
