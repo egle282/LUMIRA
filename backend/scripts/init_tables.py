@@ -33,6 +33,35 @@ async def main() -> None:
         # This one-shot init service connects as the database bootstrap role.
         # The runtime app role never owns tables and cannot alter RLS policies.
         await conn.run_sync(Base.metadata.create_all)
+        # Repair databases initialized by older versions where the runtime role
+        # owned the tables. Ownership would let it bypass FORCE RLS protections.
+        await conn.execute(text("""
+            DO $
+            DECLARE obj record;
+            BEGIN
+              FOR obj IN
+                SELECT schemaname, tablename
+                FROM pg_tables
+                WHERE schemaname = 'public'
+              LOOP
+                EXECUTE format(
+                  'ALTER TABLE %I.%I OWNER TO %I',
+                  obj.schemaname, obj.tablename, current_user
+                );
+              END LOOP;
+              FOR obj IN
+                SELECT sequence_schema, sequence_name
+                FROM information_schema.sequences
+                WHERE sequence_schema = 'public'
+              LOOP
+                EXECUTE format(
+                  'ALTER SEQUENCE %I.%I OWNER TO %I',
+                  obj.sequence_schema, obj.sequence_name, current_user
+                );
+              END LOOP;
+            END $;
+        """))
+        await conn.execute(text(f'REVOKE CREATE ON SCHEMA public FROM "{app_role}"'))
         await conn.execute(text(
             f'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "{app_role}"'
         ))
