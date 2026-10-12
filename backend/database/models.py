@@ -95,3 +95,13 @@ class Subscription(Base):
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class StripeWebhookEvent(Base):
+    """Idempotency ledger for verified Stripe webhook deliveries."""
+
+    __tablename__ = "stripe_webhook_events"
+
+    id = Column(String, primary_key=True)  # Stripe's globally unique event ID
+    event_type = Column(String, nullable=False)
+    processed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
