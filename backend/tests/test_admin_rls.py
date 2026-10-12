@@ -33,12 +33,12 @@ async def seed_data(setup_db):
         await conn.execute(text("INSERT INTO tenants (id, name) VALUES ('tenant_id_1', 'Tenant 1')"))
         await conn.execute(text("INSERT INTO users (id, tenant_id, role, email) VALUES ('admin_user_id', 'tenant_id_1', 'admin', 'admin@test.com')"))
         await conn.execute(text("INSERT INTO users (id, tenant_id, role, email) VALUES ('normal_user_id', 'tenant_id_1', 'user', 'user@test.com')"))
-        await conn.execute(text("INSERT INTO interaction_logs (id, tenant_id, user_id, input_text, output_text, tokens_used) VALUES ('log1', 'tenant_id_1', 'admin_user_id', 'i', 'o', 100)"))
+        await conn.execute(text("INSERT INTO interaction_logs (id, tenant_id, user_id, intent, input_text, output_text, tokens_used) VALUES ('log1', 'tenant_id_1', 'admin_user_id', 'ai_chat', 'i', 'o', 100)"))
         
         await conn.execute(text("SET app.current_tenant = 'tenant_id_2'"))
         await conn.execute(text("INSERT INTO tenants (id, name) VALUES ('tenant_id_2', 'Tenant 2')"))
         await conn.execute(text("INSERT INTO users (id, tenant_id, role, email) VALUES ('other_user_id', 'tenant_id_2', 'user', 'other@test.com')"))
-        await conn.execute(text("INSERT INTO interaction_logs (id, tenant_id, user_id, input_text, output_text, tokens_used) VALUES ('log2', 'tenant_id_2', 'other_user_id', 'i', 'o', 200)"))
+        await conn.execute(text("INSERT INTO interaction_logs (id, tenant_id, user_id, intent, input_text, output_text, tokens_used) VALUES ('log2', 'tenant_id_2', 'other_user_id', 'ai_chat', 'i', 'o', 200)"))
 
         # Reset role/tenant
         await conn.execute(text("RESET app.current_tenant"))
@@ -62,7 +62,7 @@ async def test_admin_endpoints_authorized_real_db(seed_data):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         response = await ac.get("/api/admin/metrics/ai-cost")
         assert response.status_code == 200
-        assert response.json()["total_ai_messages"] == 0  # Seed rows are not ai_chat messages
+        assert response.json()["total_ai_messages"] == 2  # Includes both tenants
         assert response.json()["token_usage_tracking"] is False
         assert response.json()["estimated_cost_usd"] is None
         
