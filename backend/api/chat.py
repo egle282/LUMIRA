@@ -114,25 +114,35 @@ async def ai_chat_endpoint(
             "calculated_at_utc": current_utc.isoformat(),
             "profile_timezone": profile.timezone,
         }
+        model_name = os.getenv("OPENROUTER_MODEL") or settings.OPENROUTER_MODEL
         primary = (
-            OpenRouterProvider(api_key=openrouter_key, model_name="meta-llama/llama-3.1-8b-instruct:free")
+            OpenRouterProvider(api_key=openrouter_key, model_name=model_name)
             if openrouter_key else GeminiProvider(api_key=gemini_key)
         )
         fallback = GeminiProvider(api_key=gemini_key) if openrouter_key and gemini_key else None
         orchestrator = AIOrchestrator(primary_provider=primary, fallback_provider=fallback)
-        interp = await orchestrator.interpret_chart(
-            user_question=msg.message,
-            deterministic_data=deterministic_data,
-            memory_context="Пользователь общается с LUMIRA и исследует собственную натальную карту.",
-        )
-        sections = [interp.summary]
-        if interp.opportunities:
-            sections.append("🌟 Возможности:\n" + "\n".join(f"- {item}" for item in interp.opportunities))
-        if interp.risks:
-            sections.append("⚠️ На что обратить внимание:\n" + "\n".join(f"- {item}" for item in interp.risks))
-        if interp.recommendations:
-            sections.append("💡 Рекомендации:\n" + "\n".join(f"- {item}" for item in interp.recommendations))
-        reply = "\n\n".join(sections).strip()
+        try:
+            interp = await orchestrator.interpret_chart(
+                user_question=msg.message,
+                deterministic_data=deterministic_data,
+                memory_context="Пользователь общается с LUMIRA и исследует собственную натальную карту.",
+            )
+            sections = [interp.summary]
+            if interp.opportunities:
+                sections.append("🌟 Возможности:\n" + "\n".join(f"- {item}" for item in interp.opportunities))
+            if interp.risks:
+                sections.append("⚠️ На что обратить внимание:\n" + "\n".join(f"- {item}" for item in interp.risks))
+            if interp.recommendations:
+                sections.append("💡 Рекомендации:\n" + "\n".join(f"- {item}" for item in interp.recommendations))
+            reply = "\n\n".join(sections).strip()
+        except Exception as ai_err:
+            logger.warning("AI model generation failed in chat endpoint: %s. Using deterministic astrological fallback.", ai_err)
+            reply = (
+                f"Намасте! По вашему запросу я рассчитала актуальные астрологические координаты:\n"
+                f"• Луна проходит {deterministic_data['transits'][0]['longitude']}° сидерического зодиака.\n"
+                f"• Панчанга дня: Титхи — {deterministic_data['panchanga'].get('tithi', 'N/A')}, Вара — {deterministic_data['panchanga'].get('vara', 'N/A')}.\n\n"
+                "💡 Рекомендация: следуйте распорядку дня, ориентируйтесь на внутренний баланс и осознанные действия."
+            )
         db.add(InteractionLog(
             tenant_id=current_user.tenant_id,
             user_id=current_user.id,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, MessageSquare, Compass, Calendar, Settings, CreditCard, Shield, Info } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Compass, Calendar, Settings, CreditCard, Shield, Info, Sparkles } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import { InfoModal } from './InfoModal';
 
@@ -8,8 +8,8 @@ export function Sidebar({ currentView, onViewChange, isAdmin }: { currentView: s
   const { t } = useLanguage();
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: t('nav.dashboard') },
-    { id: 'chat', icon: MessageSquare, label: t('nav.chat') },
     { id: 'chart', icon: Compass, label: t('nav.chart') },
+    { id: 'chat', icon: MessageSquare, label: t('nav.chat') },
     { id: 'muhurta', icon: Calendar, label: t('nav.muhurta') },
     { id: 'billing', icon: CreditCard, label: t('nav.billing') },
   ];
@@ -18,13 +18,32 @@ export function Sidebar({ currentView, onViewChange, isAdmin }: { currentView: s
   }
 
   return (
-    <aside className="glass-panel" style={{ width: '260px', margin: '1rem', padding: '2rem 1rem', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h2 style={{ letterSpacing: '4px', fontWeight: 600 }}>LUMIRA</h2>
-        <p style={{ fontSize: '0.8rem', color: 'var(--accent-gold)' }}>AI VEDIC ASTROLOGER</p>
+    <aside style={{
+      width: '240px',
+      minWidth: '240px',
+      background: 'var(--bg-sidebar)',
+      borderRight: '1px solid var(--border-card)',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '1.5rem 0.85rem',
+      height: '100vh',
+      boxSizing: 'border-box'
+    }}>
+      {/* Brand Header */}
+      <div style={{ padding: '0 0.5rem 1.75rem 0.5rem', borderBottom: '1px solid var(--border-card)', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <Sparkles size={18} style={{ color: 'var(--accent-gold)' }} />
+          <h2 style={{ letterSpacing: '3px', fontWeight: 700, fontSize: '1.25rem', color: 'var(--text-main)', margin: 0 }}>
+            LUMIRA
+          </h2>
+        </div>
+        <p style={{ fontSize: '0.72rem', color: 'var(--accent-gold)', letterSpacing: '1px', textTransform: 'uppercase', margin: 0, fontWeight: 500 }}>
+          Astrology Studio
+        </p>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
+      {/* Navigation List */}
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, overflowY: 'auto' }}>
         {navItems.map((item) => {
           const isActive = currentView === item.id;
           return (
@@ -32,44 +51,95 @@ export function Sidebar({ currentView, onViewChange, isAdmin }: { currentView: s
               key={item.id}
               onClick={() => onViewChange(item.id)}
               style={{
-                display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
-                background: isActive ? 'rgba(212, 175, 55, 0.1)' : 'transparent',
-                border: isActive ? '1px solid rgba(212, 175, 55, 0.3)' : '1px solid transparent',
-                borderRadius: '12px', color: isActive ? 'var(--accent-gold)' : 'var(--text-muted)',
-                cursor: 'pointer', transition: 'all 0.3s ease', textAlign: 'left', fontSize: '1rem'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 14px',
+                background: isActive ? 'rgba(221, 186, 72, 0.12)' : 'transparent',
+                border: 'none',
+                borderLeft: isActive ? '3px solid var(--accent-gold)' : '3px solid transparent',
+                borderRadius: '0 8px 8px 0',
+                color: isActive ? 'var(--accent-gold)' : 'var(--text-secondary)',
+                fontWeight: isActive ? 600 : 500,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                textAlign: 'left',
+                fontSize: '0.9rem',
+                width: '100%'
               }}
-              className="glow-hover"
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                  e.currentTarget.style.color = 'var(--text-main)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }
+              }}
             >
-              <item.icon size={20} />
-              {item.label}
+              <item.icon size={18} style={{ color: isActive ? 'var(--accent-gold)' : 'inherit', flexShrink: 0 }} />
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {/* Bottom Controls */}
+      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <button 
           onClick={() => setShowInfo(true)}
           style={{
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
-            background: 'transparent', border: 'none', color: 'var(--text-muted)',
-            cursor: 'pointer', textAlign: 'left', fontSize: '1rem'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '8px 14px',
+            background: 'transparent',
+            border: 'none',
+            borderRadius: '6px',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            fontSize: '0.85rem'
           }}
-          className="glow-hover"
+          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-main)'; e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
         >
-          <Info size={20} /> {t('nav.info')}
+          <Info size={16} /> {t('nav.info')}
         </button>
 
         <button 
           onClick={() => onViewChange('settings')}
           style={{
-            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
-            background: 'transparent', border: 'none', color: 'var(--text-muted)',
-            cursor: 'pointer', textAlign: 'left', fontSize: '1rem'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '8px 14px',
+            background: currentView === 'settings' ? 'rgba(221, 186, 72, 0.12)' : 'transparent',
+            border: 'none',
+            borderLeft: currentView === 'settings' ? '3px solid var(--accent-gold)' : '3px solid transparent',
+            borderRadius: '0 6px 6px 0',
+            color: currentView === 'settings' ? 'var(--accent-gold)' : 'var(--text-secondary)',
+            cursor: 'pointer',
+            textAlign: 'left',
+            fontSize: '0.85rem'
           }}
-          className="glow-hover"
+          onMouseEnter={(e) => {
+            if (currentView !== 'settings') {
+              e.currentTarget.style.color = 'var(--text-main)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentView !== 'settings') {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}
         >
-          <Settings size={20} /> {t('nav.settings')}
+          <Settings size={16} /> {t('nav.settings')}
         </button>
       </div>
 

@@ -37,6 +37,9 @@ export const translations: Translations = {
   
   // Admin
   'admin.title': { en: 'Admin Dashboard', ru: 'Панель Управления' },
+  'admin.login_title': { en: 'Admin Access Required', ru: 'Требуется вход администратора' },
+  'admin.login_desc': { en: 'You are currently logged in as a standard user. Enter administrator credentials to access management controls.', ru: 'Вы вошли как обычный пользователь. Введите данные администратора для доступа к управлению.' },
+  'admin.login_btn': { en: 'Sign in as Admin', ru: 'Войти как Администратор' },
   'admin.tokens': { en: 'AI Chat Messages', ru: 'Сообщения AI-чата' },
   'admin.cost': { en: 'Provider Cost Tracking', ru: 'Учёт расходов провайдера' },
   'admin.cost_unavailable': { en: 'Not tracked yet', ru: 'Пока не отслеживается' },
@@ -75,9 +78,58 @@ export const translations: Translations = {
   'dash.yoga': { en: 'Yoga', ru: 'Йога' },
   'dash.karana': { en: 'Karana', ru: 'Карана' },
 
+  // App header
+  'header.timezone': { en: 'Mumbai, India (Local Time)', ru: 'Москва, Россия (Местное время)' },
+  'header.moon': { en: 'Moon in Taurus ☽', ru: 'Луна в Тельце ☽' },
+
   // Settings
+  'settings.appearance': { en: 'Appearance & Theme', ru: 'Внешний вид и Тема' },
+  'settings.theme_standard': { en: 'STANDARD (Classic)', ru: 'STANDARD (Классическая)' },
+  'settings.theme_premium': { en: 'PREMIUM (Astrology Studio)', ru: 'PREMIUM (Астрологическая Студия)' },
+  'settings.theme_desc': { en: 'Switch between the classic interface and the dark luxury astrology studio.', ru: 'Переключение между классическим оформлением и тёмной профессиональной студией.' },
   'settings.language': { en: 'Language', ru: 'Язык' },
   'settings.logout': { en: 'Logout', ru: 'Выйти из аккаунта' },
+  'settings.profile_title': { en: 'Astronomical Profile', ru: 'Астрономический Профиль' },
+  'settings.name': { en: 'Your Name', ru: 'Ваше имя' },
+  'settings.lat': { en: 'Latitude (e.g. 55.75)', ru: 'Широта (например, 55.75)' },
+  'settings.lon': { en: 'Longitude (e.g. 37.61)', ru: 'Долгота (например, 37.61)' },
+  'settings.timezone': { en: 'Timezone (e.g. Europe/Moscow)', ru: 'Часовой пояс (например, Europe/Moscow)' },
+  'settings.save_btn': { en: 'Save Profile', ru: 'Сохранить профиль' },
+  'settings.saving': { en: 'Saving…', ru: 'Сохранение…' },
+  'settings.saved': { en: 'Profile saved successfully.', ru: 'Профиль сохранён успешно.' },
+  'settings.err_fill': { en: 'Complete all fields. Latitude must be −90 to 90 and longitude −180 to 180.', ru: 'Заполните все поля. Широта должна быть от −90 до 90, долгота — от −180 до 180.' },
+
+  // Muhurta
+  'muhurta.title': { en: 'Muhurta · Panchanga', ru: 'Мухурта · Панчанга' },
+  'muhurta.desc': { en: 'Preliminary hourly screening of lunar day and nakshatra by saved location and timezone.', ru: 'Предварительный почасовой скрининг лунного дня и накшатры по сохранённому месту и часовому поясу.' },
+  'muhurta.event_date': { en: 'Event Date', ru: 'Дата события' },
+  'muhurta.event_type': { en: 'Event Type', ru: 'Тип события' },
+  'muhurta.calc_btn': { en: 'Calculate Panchanga', ru: 'Рассчитать Панчангу' },
+  'muhurta.calculating': { en: 'Calculating…', ru: 'Рассчитываем…' },
+  'muhurta.best_hour': { en: 'Best hour by basic heuristic', ru: 'Лучший час по базовой эвристике' },
+  'muhurta.score': { en: 'score', ru: 'оценка' },
+  'muhurta.time': { en: 'Time', ru: 'Время' },
+  'muhurta.business': { en: 'Business & Finance', ru: 'Бизнес и финансы' },
+  'muhurta.marriage': { en: 'Relationships & Marriage', ru: 'Отношения и брак' },
+  'muhurta.travel': { en: 'Travel & Trips', ru: 'Путешествия' },
+  'muhurta.health': { en: 'Health & Procedures', ru: 'Здоровье и процедуры' },
+
+  // AI Chat
+  'chat.initial': { en: 'Namaste. I am LUMIRA. What would you like to consult the stars about today?', ru: 'Намасте. Я LUMIRA. О чем бы вы хотели спросить звезды сегодня?' },
+  'chat.info_btn': { en: 'Information', ru: 'Информация' },
+  'chat.placeholder': { en: 'Ask about career, relationships or current transits...', ru: 'Спросите о карьере, отношениях или текущих транзитах...' },
+  'chat.you': { en: 'You', ru: 'Вы' },
+  'chat.assistant': { en: 'LUMIRA', ru: 'LUMIRA' },
+
+  // My Chart
+  'chart.loading': { en: 'Calculating the math of your Destiny...', ru: 'Рассчитываем математику вашей Судьбы...' },
+  'chart.error': { en: 'Error:', ru: 'Ошибка:' },
+  'chart.no_profile': { en: '(Perhaps birth date is not set in profile)', ru: '(Возможно, не указана дата рождения в профиле)' },
+  'chart.title': { en: 'Astronomical Coordinates (Rasi)', ru: 'Астрономические Координаты (Раси)' },
+  'chart.desc': { en: 'Here are the exact planetary positions in your natal chart, calculated via Swiss Ephemeris.', ru: 'Здесь представлены точные позиции планет в вашей натальной карте, рассчитанные с помощью Swiss Ephemeris.' },
+  'chart.sign': { en: 'Sign:', ru: 'Знак:' },
+  'chart.nakshatra': { en: 'Nakshatra:', ru: 'Накшатра:' },
+  'chart.pada': { en: 'Pada', ru: 'Пада' },
 };
 
 interface LanguageContextType {
@@ -90,7 +142,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(
-    (localStorage.getItem('lang') as Language) || 'en'
+    (localStorage.getItem('lang') as Language) || 'ru'
   );
 
   const changeLanguage = (lang: Language) => {

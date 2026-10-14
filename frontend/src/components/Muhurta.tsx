@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { getApiBaseUrl } from "../api";
+import { useLanguage } from "../i18n";
+import { Calendar, Clock, Sparkles } from "lucide-react";
 
 type Sample = {
   time: string;
@@ -23,19 +25,20 @@ type MuhurtaResult = {
   limitations: string;
 };
 
-const activities = [
-  { value: "business", label: "Бизнес и финансы" },
-  { value: "marriage", label: "Отношения и брак" },
-  { value: "travel", label: "Путешествия" },
-  { value: "health", label: "Здоровье и процедуры" },
-];
-
 export function Muhurta() {
+  const { t } = useLanguage();
   const [selectedDate, setSelectedDate] = useState("");
   const [activity, setActivity] = useState("business");
   const [result, setResult] = useState<MuhurtaResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const activities = [
+    { value: "business", label: t("muhurta.business") },
+    { value: "marriage", label: t("muhurta.marriage") },
+    { value: "travel", label: t("muhurta.travel") },
+    { value: "health", label: t("muhurta.health") },
+  ];
 
   const calculateMuhurta = async () => {
     if (!selectedDate) return;
@@ -63,46 +66,158 @@ export function Muhurta() {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: "2rem", minHeight: "60vh", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-      <header style={{ textAlign: "center" }}>
-        <h2 style={{ color: "var(--accent-gold)", marginBottom: ".75rem" }}>Мухурта · Панчанга</h2>
-        <p style={{ color: "var(--text-muted)" }}>Предварительный почасовой скрининг лунного дня и накшатры по сохранённому месту и часовому поясу.</p>
-      </header>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
-        <label style={{ display: "flex", flexDirection: "column", gap: ".5rem", minWidth: 240 }}>
-          <span>Дата события</span>
-          <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
-        </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: ".5rem", minWidth: 240 }}>
-          <span>Тип события</span>
-          <select value={activity} onChange={e => setActivity(e.target.value)}>
-            {activities.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-          </select>
-        </label>
-      </div>
-      <div style={{ textAlign: "center" }}>
-        <button className="btn-primary" onClick={calculateMuhurta} disabled={!selectedDate || loading}>
-          {loading ? "Рассчитываем…" : "Рассчитать Панчангу"}
-        </button>
-      </div>
-      {error && <p role="alert" style={{ color: "#ff8c8c", textAlign: "center" }}>{error}</p>}
-      {result && <>
-        <section className="glass-panel" style={{ padding: "1.5rem", borderRadius: 12 }}>
-          <p style={{ color: "var(--text-muted)" }}>Лучший час по базовой эвристике · {result.timezone}</p>
-          <h3 style={{ color: "var(--accent-gold)", fontSize: "1.8rem" }}>{result.best_hour.time} · оценка {result.best_hour.score}/9</h3>
-          <p>Титхи: {result.best_hour.tithi_name} ({result.best_hour.tithi})</p>
-          <p>Накшатра: {result.best_hour.nakshatra_name} ({result.best_hour.nakshatra})</p>
-          <p>Йога: {result.best_hour.yoga} · Карана: {result.best_hour.karana_name}</p>
-          <p style={{ color: "var(--text-muted)", marginTop: "1rem" }}>{result.method}</p>
-        </section>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead><tr><th align="left">Время</th><th align="left">Титхи</th><th align="left">Накшатра</th><th align="right">Оценка</th></tr></thead>
-            <tbody>{result.samples.map(s => <tr key={s.time}><td>{s.time}</td><td>{s.tithi_name}</td><td>{s.nakshatra_name}</td><td align="right">{s.score}/9</td></tr>)}</tbody>
-          </table>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "900px", margin: "0 auto", width: "100%" }}>
+      {/* Header Panel */}
+      <div className="glass-panel" style={{ padding: "1.75rem", textAlign: "center" }}>
+        <div style={{ display: "inline-flex", padding: "10px", borderRadius: "12px", background: "rgba(221, 186, 72, 0.12)", marginBottom: "0.75rem", border: "1px solid rgba(221, 186, 72, 0.25)" }}>
+          <Calendar size={24} style={{ color: "var(--accent-gold)" }} />
         </div>
-        <p style={{ color: "var(--text-muted)", fontSize: ".9rem" }}>{result.limitations}</p>
-      </>}
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: "1px", marginBottom: "0.5rem" }}>
+          {t('muhurta.title')}
+        </h2>
+        <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", maxWidth: "560px", margin: "0 auto" }}>
+          {t('muhurta.desc')}
+        </p>
+
+        {/* Inputs */}
+        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", marginTop: "1.5rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", textAlign: "left", minWidth: "220px" }}>
+            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{t('muhurta.event_date')}</label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+              className="studio-input"
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", textAlign: "left", minWidth: "220px" }}>
+            <label style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{t('muhurta.event_type')}</label>
+            <select
+              value={activity}
+              onChange={e => setActivity(e.target.value)}
+              className="studio-input"
+              style={{ cursor: "pointer" }}
+            >
+              {activities.map(item => (
+                <option key={item.value} value={item.value} style={{ background: "#141521", color: "#FFF" }}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "1.5rem" }}>
+          <button
+            className="btn-primary"
+            onClick={calculateMuhurta}
+            disabled={!selectedDate || loading}
+            style={{ minWidth: "200px" }}
+          >
+            {loading ? t('muhurta.calculating') : t('muhurta.calc_btn')}
+          </button>
+        </div>
+
+        {error && (
+          <p role="alert" style={{ color: "var(--status-error)", marginTop: "1rem", fontSize: "0.9rem" }}>
+            {error}
+          </p>
+        )}
+      </div>
+
+      {/* Results */}
+      {result && (
+        <>
+          {/* Best Hour Hero Card */}
+          <div className="glass-panel" style={{
+            padding: "1.75rem",
+            background: "var(--bg-card)",
+            border: "2px solid var(--accent-gold)",
+            boxShadow: "0 8px 30px var(--accent-gold-glow)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Sparkles size={18} style={{ color: "var(--accent-gold)" }} />
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "1px" }}>
+                  {t('muhurta.best_hour')} • {result.timezone}
+                </span>
+              </div>
+              <div className="badge-tag">
+                Благоприятность: {result.best_hour.score}/9
+              </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "baseline", gap: "1rem" }}>
+              <div style={{ fontSize: "2.2rem", fontWeight: 700, color: "var(--accent-gold)" }}>
+                {result.best_hour.time}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.75rem", background: "var(--bg-card-secondary)", padding: "1rem", borderRadius: "8px" }}>
+              <div>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{t('dash.tithi')}:</span>
+                <div style={{ fontWeight: 600 }}>{result.best_hour.tithi_name} (#{result.best_hour.tithi})</div>
+              </div>
+              <div>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{t('dash.nakshatra')}:</span>
+                <div style={{ fontWeight: 600 }}>{result.best_hour.nakshatra_name} (#{result.best_hour.nakshatra})</div>
+              </div>
+              <div>
+                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{t('dash.yoga')} / {t('dash.karana')}:</span>
+                <div style={{ fontWeight: 600 }}>#{result.best_hour.yoga} • {result.best_hour.karana_name}</div>
+              </div>
+            </div>
+
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", margin: 0 }}>
+              {result.method}
+            </p>
+          </div>
+
+          {/* Hourly Breakdown Table */}
+          <div className="glass-panel" style={{ padding: "1.5rem" }}>
+            <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Clock size={16} style={{ color: "var(--accent-gold)" }} />
+              Почасовая шкала благоприятности
+            </h3>
+            <div style={{ overflowX: "auto" }}>
+              <table className="studio-table">
+                <thead>
+                  <tr>
+                    <th>{t('muhurta.time')}</th>
+                    <th>{t('dash.tithi')}</th>
+                    <th>{t('dash.nakshatra')}</th>
+                    <th style={{ textAlign: "right" }}>{t('dash.auspiciousness')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.samples.map(s => {
+                    const isBest = s.time === result.best_hour.time;
+                    return (
+                      <tr key={s.time} style={{ background: isBest ? "rgba(221, 186, 72, 0.12)" : undefined }}>
+                        <td style={{ fontWeight: isBest ? 700 : 500, color: isBest ? "var(--accent-gold)" : undefined }}>
+                          {s.time} {isBest && "★"}
+                        </td>
+                        <td>{s.tithi_name}</td>
+                        <td>{s.nakshatra_name}</td>
+                        <td style={{ textAlign: "right", fontWeight: 600, color: s.score >= 7 ? "var(--status-success)" : undefined }}>
+                          {s.score}/9
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.78rem", marginTop: "1rem", lineHeight: "1.4" }}>
+              {result.limitations}
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 }

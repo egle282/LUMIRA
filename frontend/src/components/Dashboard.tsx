@@ -46,7 +46,19 @@ export function Dashboard() {
   }
 
   if (error) {
-    return <div style={{ color: '#ff6b6b' }}>{error}</div>;
+    return (
+      <div className="glass-panel" style={{ padding: '2.5rem', textAlign: 'center', maxWidth: '640px', margin: '2rem auto' }}>
+        <h3 style={{ color: 'var(--accent-gold)', marginBottom: '1rem', fontSize: '1.25rem' }}>
+          ✨ Добро пожаловать в LUMIRA
+        </h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+          {error}
+        </p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          Перейдите в раздел <strong>«Настройки»</strong> в левом меню, укажите дату, точное время и город рождения для точного швейцарского эфемеридного расчёта.
+        </p>
+      </div>
+    );
   }
 
   return (

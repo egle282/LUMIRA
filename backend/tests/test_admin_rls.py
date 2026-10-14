@@ -55,6 +55,12 @@ async def seed_data(setup_db):
 
     await engine.dispose()
     yield
+    # Restore persistent admin account after test completion
+    try:
+        from backend.scripts.create_admin import create_admin
+        await create_admin("admin@lumira.local", "lumira_admin_password_123")
+    except Exception:
+        pass
 
 @pytest.mark.asyncio
 async def test_admin_endpoints_authorized_real_db(seed_data):

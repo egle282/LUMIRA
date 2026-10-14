@@ -56,6 +56,12 @@ async def setup_db():
         await conn.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO lumira_admin_role;"))
 
     yield
+    # Ensure default admin user is re-created after test suites drop and recreate tables
+    try:
+        from backend.scripts.create_admin import create_admin
+        await create_admin("admin@lumira.local", "lumira_admin_password_123")
+    except Exception:
+        pass
     await engine.dispose()
 
 @pytest_asyncio.fixture(scope="function")

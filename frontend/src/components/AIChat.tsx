@@ -1,21 +1,29 @@
 import { getApiBaseUrl } from "../api";
 import { useState } from 'react';
-import { Send, Info, X } from 'lucide-react';
+import { Send, Info, X, Sparkles } from 'lucide-react';
+import { useLanguage } from '../i18n';
 
 export function AIChat() {
+  const { t, language } = useLanguage();
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Намасте. Я LUMIRA. О чем бы вы хотели спросить звезды сегодня?' }
+    { role: 'assistant', text: t('chat.initial') }
   ]);
   const [input, setInput] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-    const userText = input;
+  const quickPrompts = [
+    'Каково влияние текущих транзитов на карьеру?',
+    'Благоприятен ли этот месяц для финансовых начинаний?',
+    'Какие сильные стороны раскрывает моя натальная карта?'
+  ];
+
+  const handleSend = async (textToSend?: string) => {
+    const userText = (textToSend || input).trim();
+    if (!userText || isLoading) return;
     setMessages(prev => [...prev, { role: 'user', text: userText }]);
-    setInput('');
+    if (!textToSend) setInput('');
     setIsLoading(true);
 
     try {
@@ -32,77 +40,132 @@ export function AIChat() {
       if (!res.ok) throw new Error(data.detail || 'Не удалось получить ответ AI.');
       setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', text: `Error: ${err.message}` }]);
+      setMessages(prev => [...prev, { role: 'assistant', text: `Ошибка: ${err.message}` }]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 12rem)', position: 'relative' }}>
-      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div style={{ display: 'flex', gap: '1rem', height: 'calc(100vh - 11rem)', position: 'relative' }}>
+      <div className="glass-panel" style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
         
-        {/* Info Toggle Button */}
-        <button 
-          onClick={() => setShowInfo(!showInfo)}
-          style={{
-            position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
-            background: 'rgba(0,0,0,0.5)', border: '1px solid var(--accent-gold)',
-            color: 'var(--accent-gold)', borderRadius: '20px', padding: '0.5rem 1rem',
-            display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer'
-          }}
-        >
-          <Info size={18} /> Информация
-        </button>
+        {/* Chat Header Bar */}
+        <div style={{
+          padding: '1rem 1.5rem',
+          borderBottom: '1px solid var(--border-card)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          background: 'var(--bg-card-secondary)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(221, 186, 72, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Sparkles size={16} style={{ color: 'var(--accent-gold)' }} />
+            </div>
+            <div>
+              <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>LUMIRA AI Astrologer</span>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                Интерпретатор натальной карты и транзитов
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => setShowInfo(!showInfo)}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-card)',
+              color: 'var(--text-secondary)',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              fontSize: '0.8rem'
+            }}
+          >
+            <Info size={15} /> {t('chat.info_btn')}
+          </button>
+        </div>
 
         {/* Chat History */}
-        <div style={{ flex: 1, padding: '2rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '2rem' }}>
+        <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ 
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              maxWidth: '70%'
+              maxWidth: '75%'
             }}>
               <div style={{ 
-                background: msg.role === 'user' ? 'rgba(212, 175, 55, 0.15)' : 'rgba(0,0,0,0.4)',
-                border: msg.role === 'user' ? '1px solid rgba(212, 175, 55, 0.3)' : '1px solid var(--border-color)',
-                padding: '1rem 1.5rem',
-                borderRadius: msg.role === 'user' ? '20px 20px 0 20px' : '20px 20px 20px 0',
-                lineHeight: '1.5'
+                background: msg.role === 'user' ? 'rgba(221, 186, 72, 0.15)' : 'var(--bg-card-secondary)',
+                border: msg.role === 'user' ? '1px solid rgba(221, 186, 72, 0.35)' : '1px solid var(--border-card)',
+                color: 'var(--text-main)',
+                padding: '1rem 1.25rem',
+                borderRadius: msg.role === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
+                lineHeight: '1.6',
+                fontSize: '0.92rem',
+                whiteSpace: 'pre-wrap'
               }}>
                 {msg.text}
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
-                {msg.role === 'user' ? 'You' : 'LUMIRA'}
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', textAlign: msg.role === 'user' ? 'right' : 'left' }}>
+                {msg.role === 'user' ? t('chat.you') : 'LUMIRA'}
               </div>
             </div>
+          ))}
+
+          {isLoading && (
+            <div style={{ alignSelf: 'flex-start', color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ animation: 'pulseGlow 1.5s infinite' }}>●</span> Составление астрологического ответа…
+            </div>
+          )}
+        </div>
+
+        {/* Quick Prompts Bar */}
+        <div style={{ padding: '0.5rem 1.5rem', display: 'flex', gap: '8px', overflowX: 'auto', borderTop: '1px solid var(--border-card)' }}>
+          {quickPrompts.map((p, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleSend(p)}
+              disabled={isLoading}
+              style={{
+                background: 'var(--bg-card-secondary)',
+                border: '1px solid var(--border-card)',
+                color: 'var(--text-secondary)',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--text-main)'; e.currentTarget.style.borderColor = 'var(--accent-gold)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border-card)'; }}
+            >
+              {p}
+            </button>
           ))}
         </div>
 
         {/* Input Area */}
-        <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '1rem' }}>
+        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border-card)', display: 'flex', gap: '0.75rem', background: 'var(--bg-card-secondary)' }}>
           <input 
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Спросите о карьере, отношениях или текущих транзитах..."
-            style={{ 
-              flex: 1, padding: '1rem 1.5rem', borderRadius: '30px', 
-              background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border-color)',
-              color: 'white', outline: 'none', fontSize: '1rem'
-            }}
+            placeholder={t('chat.placeholder')}
+            className="studio-input"
+            disabled={isLoading}
           />
           <button 
-            onClick={handleSend}
-            className="glow-hover"
-            style={{ 
-              width: '56px', height: '56px', borderRadius: '50%', 
-              background: 'var(--accent-gold)', color: 'black', 
-              border: 'none', cursor: 'pointer', display: 'flex', 
-              alignItems: 'center', justifyContent: 'center'
-            }}
+            onClick={() => handleSend()}
+            disabled={isLoading || !input.trim()}
+            className="btn-primary"
+            style={{ padding: '10px 18px', flexShrink: 0 }}
           >
-            <Send size={24} />
+            <Send size={18} />
           </button>
         </div>
       </div>
@@ -110,39 +173,29 @@ export function AIChat() {
       {/* Info Panel - Right Zone */}
       {showInfo && (
         <div className="glass-panel" style={{ 
-          width: '350px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem',
-          animation: 'fadeInRight 0.3s ease-out'
+          width: '320px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+          animation: 'fadeInRight 0.25s ease-out',
+          background: 'var(--bg-card)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ color: 'var(--accent-gold)' }}>О Проекте LUMIRA</h3>
-            <button onClick={() => setShowInfo(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20} /></button>
+            <h3 style={{ color: 'var(--accent-gold)', fontSize: '1rem', fontWeight: 600 }}>
+              {language === 'ru' ? 'О Проекте LUMIRA' : 'About LUMIRA'}
+            </h3>
+            <button onClick={() => setShowInfo(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              <X size={18} />
+            </button>
           </div>
           
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <p>
-              <strong style={{ color: 'white' }}>LUMIRA</strong> — это первый ИИ-Астролог, объединяющий 
-              детерминированную ведическую астрологию (Джйотиш) и современные нейросети.
+              <strong style={{ color: 'var(--text-main)' }}>LUMIRA</strong> объединяет детерминированную ведическую астрологию (Джйотиш) и современные языковые модели.
             </p>
             <p>
-              <strong style={{ color: 'white' }}>В чём уникальность?</strong><br/>
-              Обычные чат-боты придумывают положения звезд (галлюцинируют). 
-              LUMIRA использует профессиональный астрономический движок <em>Swiss Ephemeris</em> для точного расчета 
-              Вашей натальной карты, транзитов и Панчанги (лунного календаря), а ИИ выступает лишь 
-              в роли мудрого интерпретатора.
+              В отличие от универсальных нейросетей, LUMIRA не придумывает координаты светил: швейцарские эфемериды <em>Swiss Ephemeris</em> гарантируют астрономическую точность всех положений.
             </p>
-            <p>
-              <strong style={{ color: 'white' }}>Как это работает:</strong>
-              <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
-                <li>Движок рассчитывает планеты на основе Вашего профиля.</li>
-                <li>Данные передаются в нейросеть.</li>
-                <li>Вы получаете глубокие, персональные и точные рекомендации.</li>
-              </ul>
-            </p>
-            <p>
-              <strong style={{ color: 'white' }}>Выгода для пользователя:</strong><br/>
-              Вы получаете персонального астролога, доступного 24/7, который знает Ваш гороскоп 
-              и дает советы, опираясь на реальное положение звезд в данный момент времени.
-            </p>
+            <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '0.75rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+              Контекст натальной карты передаётся в модель автоматически.
+            </div>
           </div>
         </div>
       )}

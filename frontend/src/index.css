@@ -1,13 +1,105 @@
+/* =========================================================================
+   LUMIRA DUAL THEME SYSTEM: STANDARD & PREMIUM
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. ROOT & SHARED DEFAULTS (Base / Standard fallback)
+   ------------------------------------------------------------------------- */
 :root {
-  --bg-dark: #0a0a0f;
+  /* STANDARD THEME TOKENS */
+  --bg-main: #0a0a0f;
+  --bg-sidebar: rgba(20, 20, 30, 0.7);
   --bg-card: rgba(20, 20, 30, 0.6);
+  --bg-card-secondary: rgba(15, 15, 25, 0.75);
+  --bg-card-subtle: rgba(20, 20, 30, 0.4);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
   --text-main: #f0f0f5;
-  --text-muted: #8e8e9f;
+  --text-secondary: #8e8e9f;
+  --text-muted: #6c6c7f;
+
   --accent-gold: #d4af37;
-  --accent-glow: rgba(212, 175, 55, 0.15);
-  --border-color: rgba(255, 255, 255, 0.05);
+  --accent-gold-light: #f3e5ab;
+  --accent-gold-dark: #b8972e;
+  --accent-gold-glow: rgba(212, 175, 55, 0.2);
+
+  --status-success: #4caf50;
+  --status-warn: #f0a94b;
+  --status-error: #ff6b6b;
+  --status-info: #5b8def;
+
+  --radius-card: 16px;
+  --radius-button: 8px;
+  --panel-backdrop: blur(16px);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Legacy aliases */
+  --bg-dark: var(--bg-main);
+  --accent-glow: var(--accent-gold-glow);
+  --border-color: var(--border-subtle);
 }
 
+/* -------------------------------------------------------------------------
+   2. STANDARD THEME OVERRIDES
+   ------------------------------------------------------------------------- */
+[data-theme="standard"] {
+  --bg-main: #0a0a0f;
+  --bg-sidebar: rgba(20, 20, 30, 0.7);
+  --bg-card: rgba(20, 20, 30, 0.6);
+  --bg-card-secondary: rgba(15, 15, 25, 0.75);
+  --bg-card-subtle: rgba(20, 20, 30, 0.4);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
+  --text-main: #f0f0f5;
+  --text-secondary: #8e8e9f;
+  --text-muted: #6c6c7f;
+
+  --accent-gold: #d4af37;
+  --accent-gold-light: #f3e5ab;
+  --accent-gold-dark: #b8972e;
+  --accent-gold-glow: rgba(212, 175, 55, 0.2);
+
+  --radius-card: 16px;
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------------------------------------------------------------
+   3. PREMIUM THEME TOKENS (Strict adherence to section 6.2)
+   ------------------------------------------------------------------------- */
+[data-theme="premium"] {
+  --bg-main: #080A12;
+  --bg-sidebar: #11111C;
+  --bg-card: #141521;
+  --bg-card-secondary: #0D101A;
+  --bg-card-subtle: rgba(20, 21, 33, 0.85);
+  --border-card: #292A39;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+
+  --text-main: #F5F4F8;
+  --text-secondary: #9999AD;
+  --text-muted: #68697D;
+
+  --accent-gold: #DDBA48;
+  --accent-gold-light: #F0D578;
+  --accent-gold-dark: #C49E30;
+  --accent-gold-glow: rgba(221, 186, 72, 0.22);
+
+  --status-success: #43C980;
+  --status-warn: #E9AE55;
+  --status-error: #F16A76;
+  --status-info: #5B8DEF;
+
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --panel-backdrop: blur(20px);
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* -------------------------------------------------------------------------
+   4. GLOBAL RESET & BASE STYLES
+   ------------------------------------------------------------------------- */
 * {
   margin: 0;
   padding: 0;
@@ -15,17 +107,29 @@
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
-  background-color: var(--bg-dark);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Outfit";
+  background-color: var(--bg-main);
   color: var(--text-main);
   min-height: 100vh;
-  /* Deep cosmic gradient mesh */
+  background-attachment: fixed;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dynamic background per theme */
+[data-theme="standard"] body,
+body {
   background-image: 
     radial-gradient(circle at 10% 20%, rgba(55, 30, 80, 0.25), transparent 40%),
     radial-gradient(circle at 90% 80%, rgba(20, 50, 90, 0.25), transparent 40%),
     radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.05), transparent 60%);
-  background-attachment: fixed;
-  overflow-x: hidden;
+}
+
+[data-theme="premium"] body {
+  background-image: 
+    radial-gradient(circle at 12% 16%, rgba(35, 22, 60, 0.38), transparent 45%),
+    radial-gradient(circle at 88% 84%, rgba(16, 36, 75, 0.32), transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(221, 186, 72, 0.035), transparent 65%);
 }
 
 /* Twinkling stars effect */
@@ -34,64 +138,264 @@ body::before {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
   background-image: 
-    radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 130px 80px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 160px 120px, #ffffff, rgba(0,0,0,0));
+    radial-gradient(1.5px 1.5px at 30px 40px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 70px 90px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 120px 180px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 190px 70px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 230px 150px, #ffffff, rgba(0,0,0,0));
   background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.15;
-  animation: twinkle 5s infinite alternate;
+  background-size: 260px 260px;
+  opacity: 0.12;
+  animation: twinkle 6s infinite alternate;
   pointer-events: none;
   z-index: -1;
 }
 
 @keyframes twinkle {
-  0% { opacity: 0.1; }
-  100% { opacity: 0.3; transform: scale(1.02); }
+  0% { opacity: 0.08; }
+  100% { opacity: 0.22; transform: scale(1.01); }
 }
 
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #252838;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #393E54;
+}
+
+/* -------------------------------------------------------------------------
+   5. COMPONENT SYSTEM: CARDS & GLASS PANELS
+   ------------------------------------------------------------------------- */
 .glass-panel {
-  background: linear-gradient(135deg, rgba(30, 30, 45, 0.7) 0%, rgba(15, 15, 25, 0.8) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: var(--panel-backdrop);
+  -webkit-backdrop-filter: var(--panel-backdrop);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .glass-panel:hover {
-  border-color: rgba(212, 175, 55, 0.2);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-
-/* Animations */
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 15px var(--accent-glow); }
-  50% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.3); }
-  100% { box-shadow: 0 0 15px var(--accent-glow); }
+  border-color: rgba(221, 186, 72, 0.3);
 }
 
 .glow-hover {
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 .glow-hover:hover {
-  border-color: rgba(212, 175, 55, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.2);
+  border-color: rgba(221, 186, 72, 0.5);
+  box-shadow: 0 4px 18px var(--accent-gold-glow);
 }
 
-/* Typography Enhancements */
-h1, h2, h3 {
-  letter-spacing: 1px;
+/* -------------------------------------------------------------------------
+   6. BUTTONS & CONTROLS
+   ------------------------------------------------------------------------- */
+.btn-primary {
+  background: var(--accent-gold);
+  color: #080A12;
+  border: none;
+  border-radius: var(--radius-button);
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
 }
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--accent-gold-glow);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--bg-card-secondary);
+  color: var(--text-main);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-button);
+  padding: 9px 16px;
+  font-weight: 500;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+/* -------------------------------------------------------------------------
+   7. FORM INPUTS & SELECTS
+   ------------------------------------------------------------------------- */
+.studio-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card-secondary);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-button);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.studio-input:focus {
+  outline: none;
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 2px var(--accent-gold-glow);
+}
+
+.studio-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------------------------------
+   8. TYPOGRAPHY & TEXT UTILITIES
+   ------------------------------------------------------------------------- */
+h1, h2, h3, h4 {
+  color: var(--text-main);
+  letter-spacing: 0.5px;
+}
+
 .text-gradient {
-  background: linear-gradient(90deg, #d4af37, #f3e5ab);
+  background: linear-gradient(135deg, var(--accent-gold-light) 0%, var(--accent-gold) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-@keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(221, 186, 72, 0.12);
+  color: var(--accent-gold);
+  border: 1px solid rgba(221, 186, 72, 0.25);
+}
+
+.badge-retro {
+  background: rgba(241, 106, 118, 0.15);
+  color: var(--status-error);
+  border: 1px solid rgba(241, 106, 118, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   9. DATA TABLES & TABS
+   ------------------------------------------------------------------------- */
+.studio-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.studio-table th {
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border-card);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.studio-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-main);
+}
+
+.studio-table tr:last-child td {
+  border-bottom: none;
+}
+
+.studio-table tr:hover td {
+  background: rgba(221, 186, 72, 0.04);
+}
+
+.studio-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.studio-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.studio-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.studio-tab-btn.active {
+  color: var(--accent-gold);
+  background: rgba(221, 186, 72, 0.12);
+  border: 1px solid rgba(221, 186, 72, 0.25);
+}
+
+/* -------------------------------------------------------------------------
+   10. ANIMATIONS & RESPONSIVE BEHAVIOR
+   ------------------------------------------------------------------------- */
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 12px var(--accent-gold-glow); }
+  50% { box-shadow: 0 0 22px rgba(221, 186, 72, 0.35); }
+  100% { box-shadow: 0 0 12px var(--accent-gold-glow); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

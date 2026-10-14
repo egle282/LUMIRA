@@ -7,7 +7,7 @@ from .provider import LLMProvider
 T = TypeVar('T', bound=BaseModel)
 
 class OpenRouterProvider(LLMProvider):
-    def __init__(self, api_key: str, model_name: str = 'google/gemma-7b-it:free'):
+    def __init__(self, api_key: str, model_name: str = 'meta-llama/llama-3.1-8b-instruct'):
         self.client = AsyncOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,

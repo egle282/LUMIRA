@@ -10,11 +10,13 @@ import { Admin } from './components/Admin';
 import { Billing } from './components/Billing';
 import { Settings } from './components/Settings';
 import { useLanguage } from './i18n';
+import { useTheme } from './theme';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const { t, language, setLanguage } = useLanguage();
+  const { theme, setTheme } = useTheme();
 
   if (!token) {
     return <Auth onLogin={setToken} />;
@@ -56,30 +58,92 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--bg-main)' }}>
       <Sidebar currentView={currentView} onViewChange={setCurrentView} isAdmin={isAdmin} />
       
-      <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-          <h1 style={{ fontWeight: 300, letterSpacing: '2px', color: 'var(--accent-gold)' }}>
-            {getTitle()}
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <main style={{ flex: 1, padding: '1.5rem 2rem', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <header style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+          paddingBottom: '1rem',
+          borderBottom: '1px solid var(--border-card)',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <div>
+            <h1 style={{ fontWeight: 600, letterSpacing: '1px', fontSize: '1.4rem', color: 'var(--text-main)', margin: 0 }}>
+              {getTitle()}
+            </h1>
+            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '2px 0 0 0' }}>
+              LUMIRA Astrological Computation Engine
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{t('header.timezone')}</span>
+            <div className="badge-tag" style={{ background: 'var(--bg-card-secondary)', border: '1px solid var(--border-card)', color: 'var(--text-main)', padding: '4px 10px' }}>
+              {t('header.moon')}
+            </div>
+            <button 
+              onClick={() => setTheme(theme === 'premium' ? 'standard' : 'premium')}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                border: '1px solid var(--border-card)',
+                background: theme === 'premium' ? 'rgba(221, 186, 72, 0.15)' : 'var(--bg-card-secondary)',
+                color: theme === 'premium' ? 'var(--accent-gold)' : 'var(--text-main)',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="Переключить тему (STANDARD / PREMIUM)"
+            >
+              <span>{theme === 'premium' ? '★ PREMIUM' : 'STANDARD'}</span>
+            </button>
             <button 
               onClick={() => setLanguage(language === 'en' ? 'ru' : 'en')}
-              className="glass-panel"
-              style={{ padding: '0.5rem 1rem', borderRadius: '20px', cursor: 'pointer', border: 'none', background: 'rgba(212, 175, 55, 0.1)', color: 'var(--accent-gold)' }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                border: '1px solid var(--border-card)',
+                background: 'var(--bg-card-secondary)',
+                color: 'var(--accent-gold)',
+                fontSize: '0.8rem',
+                fontWeight: 600
+              }}
             >
               {language === 'en' ? 'RU' : 'EN'}
             </button>
-            <span style={{ color: 'var(--text-muted)' }}>Mumbai, India (Local Time)</span>
-            <div className="glass-panel" style={{ padding: '0.5rem 1rem', borderRadius: '20px' }}>
-              Moon in Taurus ☽
-            </div>
+            <button
+              onClick={() => {
+                localStorage.removeItem('token');
+                setToken(null);
+              }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                border: '1px solid rgba(240, 100, 112, 0.3)',
+                background: 'rgba(240, 100, 112, 0.1)',
+                color: 'var(--status-error)',
+                fontSize: '0.8rem',
+                fontWeight: 500
+              }}
+            >
+              {t('settings.logout')}
+            </button>
           </div>
         </header>
 
-        {renderContent()}
+        <div style={{ flex: 1, paddingBottom: '2rem' }}>
+          {renderContent()}
+        </div>
       </main>
     </div>
   );

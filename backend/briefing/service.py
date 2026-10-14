@@ -117,7 +117,7 @@ class BriefingService:
             if settings.OPENROUTER_API_KEY:
                 provider = OpenRouterProvider(
                     api_key=settings.OPENROUTER_API_KEY,
-                    model_name="meta-llama/llama-3.1-8b-instruct:free",
+                    model_name=settings.OPENROUTER_MODEL,
                 )
                 if settings.LLM_API_KEY:
                     fallback = GeminiProvider(api_key=settings.LLM_API_KEY)
